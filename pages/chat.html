@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoveChat - Conversa Romântica</title>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Converse com seu amor de forma especial">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="LoveChat - Chat Romântico">
+    <meta property="og:description" content="Um espaço especial para você e seu amor">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=LoveChat">
+    
+    <!-- Fonts e Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <style>
+        /* Estilos adicionais específicos do chat */
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Indicador de digitação */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            background: #e9ecef;
+            border-radius: 20px;
+            width: fit-content;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #666;
+            animation: fadeIn 0.3s;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #666;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+        
+        /* Status de conexão */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+        }
+        
+        .connection-status.online {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .connection-status.offline {
+            background: #f44336;
+            color: white;
+        }
+        
+        /* Preview de áudio */
+        .audio-preview {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            animation: slideUp 0.3s;
+        }
+        
+        .audio-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .audio-preview-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* Drag and drop */
+        .drag-over {
+            border: 3px dashed #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        /* Mensagem destacada */
+        .message.highlight {
+            animation: highlight 2s ease;
+        }
+        
+        @keyframes highlight {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(255, 215, 0, 0.2); }
+        }
+        
+        /* Botão de rolar para baixo */
+        .scroll-bottom-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .scroll-bottom-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .scroll-bottom-btn.visible {
+            display: flex;
+        }
+        
+        /* Contador de não lidas */
+        .unread-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 0 5px;
+        }
+        
+        /* Pesquisa de mensagens */
+        .search-messages {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            width: 300px;
+        }
+        
+        .search-messages.active {
+            display: block;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-result-item:hover {
+            background: #f5f5f5;
+        }
+        
+        /* Emoji picker */
+        .emoji-picker {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+        }
+        
+        .emoji-picker.active {
+            display: grid;
+        }
+        
+        .emoji-item {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        
+        .emoji-item:hover {
+            background: #f0f0f0;
+            transform: scale(1.2);
+        }
+        
+        /* Stickers */
+        .sticker-picker {
+            position: absolute;
+            bottom: 80px;
+            left: 70px;
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        
+        .sticker-picker.active {
+            display: grid;
+        }
+        
+        .sticker-item {
+            font-size: 40px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .sticker-item:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+        
+        /* Responsividade adicional */
+        @media (max-width: 768px) {
+            .emoji-picker {
+                grid-template-columns: repeat(6, 1fr);
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+            
+            .search-messages {
+                width: calc(100% - 40px);
+                right: 20px;
+            }
+            
+            .scroll-bottom-btn {
+                bottom: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="chatLoader">
+        <div class="loading-spinner-large"></div>
+    </div>
+    
+    <!-- Status de Conexão -->
+    <div class="connection-status online" id="connectionStatus">
+        <i class="fas fa-wifi"></i> Online
+    </div>
+    
+    <!-- Botão de rolar para baixo -->
+    <button class="scroll-bottom-btn" id="scrollBottomBtn" onclick="scrollToBottom()">
+        <i class="fas fa-arrow-down"></i>
+    </button>
+    
+    <!-- Container Principal do Chat -->
+    <div class="chat-container">
+        
+        <!-- ======================================== -->
+        <!-- SIDEBAR ESQUERDA -->
+        <!-- ======================================== -->
+        <div class="sidebar" id="sidebar">
+            
+            <!-- Perfil do Usuário -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <img src="https://via.placeholder.com/80" alt="Profile" id="profilePhoto" data-profile-photo>
+                    <span class="status-indicator online"></span>
+                </div>
+                <h3 id="userName" data-user-name>Carregando...</h3>
+                <div class="score-display">
+                    <i class="fas fa-star"></i>
+                    <span id="userScore" data-user-score>0</span> pontos
+                </div>
+            </div>
+            
+            <!-- Menu de Opções -->
+            <div class="menu-options">
+                <button class="menu-btn" data-action="profile" onclick="openProfile()">
+                    <i class="fas fa-user"></i>
+                    <span>Meu Perfil</span>
+                </button>
+                
+                <button class="menu-btn" data-action="ranking" onclick="showFullRanking()">
+                    <i class="fas fa-trophy"></i>
+                    <span>Ranking</span>
+                    <span class="unread-badge" id="rankingBadge"></span>
+                </button>
+                
+                <button class="menu-btn" data-action="settings" onclick="openSettings()">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </button>
+                
+                <button class="menu-btn" data-action="logout" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+            
+            <!-- Usuários Online -->
+            <div class="online-users" id="onlineUsers"></div>
+            
+            <!-- Status do Usuário -->
+            <div class="user-status">
+                <div class="online-indicator"></div>
+                <span>Online</span>
+            </div>
+        </div>
+        
+        <!-- ======================================== -->
+        <!-- ÁREA PRINCIPAL DO CHAT -->
+        <!-- ======================================== -->
+        <div class="chat-main">
+            
+            <!-- Cabeçalho do Chat -->
+            <div class="chat-header">
+                <h2>
+                    <i class="fas fa-heart"></i>
+                    Conversa Romântica
+                </h2>
+                
+                <div class="partner-info">
+                    <div class="partner-status" id="partnerStatus">
+                        <i class="fas fa-circle" style="color: #4caf50;"></i>
+                        <span>Online</span>
+                    </div>
+                    
+                    <div class="partner-score" id="totalScore">
+                        Total: 0 pts
+                    </div>
+                    
+                    <button class="btn-icon" onclick="toggleSearch()" title="Pesquisar mensagens">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Área de Pesquisa -->
+            <div class="search-messages" id="searchMessages">
+                <input type="text" class="search-input" placeholder="Pesquisar mensagens..." id="searchInput">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            
+            <!-- Área de Mensagens -->
+            <div class="messages-area" id="messagesArea">
+                <!-- Mensagens serão inseridas aqui via JavaScript -->
+            </div>
+            
+            <!-- Indicador de Digitação -->
+            <div class="typing-indicator" id="typingIndicator">
+                <i class="fas fa-pencil-alt"></i>
+                <span>Alguém está digitando</span>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            
+            <!-- Área de Pontuação -->
+            <div class="scoring-area">
+                <div class="presentes">
+                    <button class="presente-btn" data-points="1" onclick="handleScoreAction(1, 'presente')">
+                        <i class="fas fa-smile"></i> 😊 +1
+                    </button>
+                    <button class="presente-btn" data-points="5" onclick="handleScoreAction(5, 'presente')">
+                        <i class="fas fa-heart"></i> ❤️ +5
+                    </button>
+                    <button class="presente-btn" data-points="10" onclick="handleScoreAction(10, 'presente')">
+                        <i class="fas fa-crown"></i> 👑 +10
+                    </button>
+                </div>
+                
+                <div class="penalidades">
+                    <button class="penalidade-btn" data-points="1" onclick="handleScoreAction(1, 'penalidade')">
+                        <i class="fas fa-frown"></i> 😞 -1
+                    </button>
+                    <button class="penalidade-btn" data-points="3" onclick="handleScoreAction(3, 'penalidade')">
+                        <i class="fas fa-angry"></i> 😠 -3
+                    </button>
+                    <button class="penalidade-btn" data-points="5" onclick="handleScoreAction(5, 'penalidade')">
+                        <i class="fas fa-skull"></i> 💀 -5
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Área de Input -->
+            <div class="message-input-area">
+                
+                <!-- Emoji Picker -->
+                <div class="emoji-picker" id="emojiPicker">
+                    <!-- Emojis serão inseridos via JavaScript -->
+                </div>
+                
+                <!-- Sticker Picker -->
+                <div class="sticker-picker" id="stickerPicker">
+                    <!-- Stickers serão inseridos via JavaScript -->
+                </div>
+                
+                <!-- Ações de Input -->
+                <div class="input-actions">
+                    <button class="action-btn" onclick="toggleEmojiPicker()" title="Emojis">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                    
+                    <button class="action-btn" onclick="toggleStickerPicker()" title="Stickers">
+                        <i class="fas fa-sticky-note"></i>
+                    </button>
+                    
+                    <button class="action-btn" onclick="handleMediaAction('image')" title="Enviar imagem">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    
+                    <button class="action-btn" onclick="handleMediaAction('video')" title="Enviar vídeo">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    
+                    <button class="action-btn" onclick="handleMediaAction('audio')" title="Gravar áudio">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    
+                    <button class="action-btn" onclick="handleMediaAction('camera')" title="Tirar foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                
+                <!-- Input de Mensagem -->
+                <div class="message-input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        rows="1" 
+                        placeholder="Digite sua mensagem... (Ctrl+Enter para enviar)"
+                        onkeypress="handleMessageKeyPress(event)"
+                        oninput="handleMessageInput(event)"
+                    ></textarea>
+                    
+                    <div class="char-counter" id="charCounter">0/1000</div>
+                    
+                    <button class="send-btn" id="sendMessageBtn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ======================================== -->
+    <!-- MODAIS -->
+    <!-- ======================================== -->
+    
+    <!-- Modal de Perfil -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Meu Perfil</h2>
+                <span class="modal-close" onclick="closeProfile()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="profile-upload">
+                    <img src="https://via.placeholder.com/120" alt="Profile" id="profilePhotoPreview">
+                    <button class="btn btn-sm" onclick="changePhoto()">
+                        <i class="fas fa-camera"></i> Alterar foto
+                    </button>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="profileName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="profileEmail" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nova senha</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="Deixe em branco para manter">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirmar nova senha</label>
+                        <input type="password" class="form-control" id="confirmNewPassword">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Data de cadastro</label>
+                        <input type="text" class="form-control" id="joinDate" readonly>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProfile()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveProfile()">Salvar alterações</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Configurações -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configurações</h2>
+                <span class="modal-close" onclick="closeSettings()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Notificações</h3>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="notificationSound" checked>
+                        <label for="notificationSound">Som de notificação</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="notificationBrowser" checked>
+                        <label for="notificationBrowser">Notificações do navegador</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="notificationPreview">
+                        <label for="notificationPreview">Mostrar preview das mensagens</label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Aparência</h3>
+                    
+                    <div class="radio-group">
+                        <div class="radio">
+                            <input type="radio" name="theme" id="themeLight" value="light" checked>
+                            <label for="themeLight">Claro</label>
+                        </div>
+                        
+                        <div class="radio">
+                            <input type="radio" name="theme" id="themeDark" value="dark">
+                            <label for="themeDark">Escuro</label>
+                        </div>
+                        
+                        <div class="radio">
+                            <input type="radio" name="theme" id="themeRomantic" value="romantic">
+                            <label for="themeRomantic">Romântico</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Privacidade</h3>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="showOnline" checked>
+                        <label for="showOnline">Mostrar quando estou online</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="showTyping" checked>
+                        <label for="showTyping">Mostrar quando estou digitando</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="readReceipt" checked>
+                        <label for="readReceipt">Confirmação de leitura</label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Chat</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Enter para enviar</label>
+                        <select class="form-control" id="enterBehavior">
+                            <option value="send">Enviar mensagem</option>
+                            <option value="newline">Nova linha</option>
+                        </select>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="saveHistory" checked>
+                        <label for="saveHistory">Salvar histórico de mensagens</label>
+                    </div>
+                    
+                    <div class="checkbox">
+                        <input type="checkbox" id="autoSave" checked>
+                        <label for="autoSave">Salvar rascunhos automaticamente</label>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Idioma</h3>
+                    
+                    <select class="form-control" id="language">
+                        <option value="pt-BR">Português (Brasil)</option>
+                        <option value="en-US">English (US)</option>
+                        <option value="es-ES">Español</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Salvar configurações</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Confirmar</h2>
+                <span class="modal-close" onclick="closeConfirmModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <p id="confirmMessage">Tem certeza que deseja continuar?</p>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-primary" id="confirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Visualização de Mídia -->
+    <div class="modal" id="mediaModal">
+        <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 90%;">
+            <span class="modal-close" style="color: white; font-size: 40px;" onclick="closeMediaModal()">&times;</span>
+            <div id="mediaContent" style="text-align: center;"></div>
+        </div>
+    </div>
+    
+    <!-- Input de arquivo oculto -->
+    <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*,audio/*">
+    
+    <!-- Container de Toasts -->
+    <div id="toastContainer"></div>
+    
+    <!-- ======================================== -->
+    <!-- SCRIPTS -->
+    <!-- ======================================== -->
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/app.js"></script>
+    <script src="../js/chat.js"></script>
+    
+    <script>
+        // Inicialização adicional específica do chat
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('💬 Página de chat carregada');
+            
+            // Carregar emojis
+            loadEmojis();
+            
+            // Carregar stickers
+            loadStickers();
+            
+            // Configurar listeners adicionais
+            setupAdditionalListeners();
+            
+            // Detectar scroll para mostrar botão
+            setupScrollDetection();
+        });
+        
+        function loadEmojis() {
+            const emojis = ['😊', '❤️', '😘', '🥰', '💕', '😍', '💋', '💑', '🌹', '🎁', '🌟', '✨', '💫', '⭐', '🌈', '☀️', '🌙', '⭐', '🕊️', '🦋'];
+            const container = document.getElementById('emojiPicker');
+            
+            emojis.forEach(emoji => {
+                const div = document.createElement('div');
+                div.className = 'emoji-item';
+                div.textContent = emoji;
+                div.onclick = () => insertEmoji(emoji);
+                container.appendChild(div);
+            });
+        }
+        
+        function loadStickers() {
+            const stickers = ['😊', '😍', '🥰', '😘', '💕', '❤️', '💋', '💑', '🌹', '🎁', '🌟', '✨', '💫', '⭐', '🌈', '☀️', '🌙', '🕊️', '🦋', '🐶'];
+            const container = document.getElementById('stickerPicker');
+            
+            stickers.forEach(sticker => {
+                const div = document.createElement('div');
+                div.className = 'sticker-item';
+                div.textContent = sticker;
+                div.onclick = () => sendSticker(sticker);
+                container.appendChild(div);
+            });
+        }
+        
+        function setupAdditionalListeners() {
+            // Fechar pickers ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.emoji-picker') && !e.target.closest('[onclick="toggleEmojiPicker()"]')) {
+                    document.getElementById('emojiPicker').classList.remove('active');
+                }
+                if (!e.target.closest('.sticker-picker') && !e.target.closest('[onclick="toggleStickerPicker()"]')) {
+                    document.getElementById('stickerPicker').classList.remove('active');
+                }
+                if (!e.target.closest('.search-messages') && !e.target.closest('[onclick="toggleSearch()"]')) {
+                    document.getElementById('searchMessages').classList.remove('active');
+                }
+            });
+            
+            // Pesquisar enquanto digita
+            document.getElementById('searchInput')?.addEventListener('input', debounce(performSearch, 500));
+            
+            // Ajustar altura do textarea
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        function setupScrollDetection() {
+            const messagesArea = document.getElementById('messagesArea');
+            const scrollBtn = document.getElementById('scrollBottomBtn');
+            
+            messagesArea.addEventListener('scroll', function() {
+                const isNearBottom = this.scrollHeight - this.scrollTop - this.clientHeight < 100;
+                scrollBtn.classList.toggle('visible', !isNearBottom);
+            });
+        }
+        
+        function toggleEmojiPicker() {
+            document.getElementById('emojiPicker').classList.toggle('active');
+            document.getElementById('stickerPicker').classList.remove('active');
+        }
+        
+        function toggleStickerPicker() {
+            document.getElementById('stickerPicker').classList.toggle('active');
+            document.getElementById('emojiPicker').classList.remove('active');
+        }
+        
+        function toggleSearch() {
+            document.getElementById('searchMessages').classList.toggle('active');
+            if (document.getElementById('searchMessages').classList.contains('active')) {
+                document.getElementById('searchInput').focus();
+            }
+        }
+        
+        function insertEmoji(emoji) {
+            const input = document.getElementById('messageInput');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            
+            input.value = text.substring(0, start) + emoji + text.substring(end);
+            input.focus();
+            input.selectionStart = input.selectionEnd = start + emoji.length;
+            
+            document.getElementById('emojiPicker').classList.remove('active');
+        }
+        
+        function sendSticker(sticker) {
+            sendMessage(sticker);
+            document.getElementById('stickerPicker').classList.remove('active');
+        }
+        
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const results = document.getElementById('searchResults');
+            
+            if (!query) {
+                results.innerHTML = '';
+                return;
+            }
+            
+            // Buscar mensagens
+            const messages = document.querySelectorAll('.message .message-text');
+            const matches = [];
+            
+            messages.forEach(msg => {
+                if (msg.textContent.toLowerCase().includes(query)) {
+                    matches.push({
+                        text: msg.textContent,
+                        element: msg.closest('.message')
+                    });
+                }
+            });
+            
+            // Mostrar resultados
+            if (matches.length > 0) {
+                results.innerHTML = matches.map(m => `
+                    <div class="search-result-item" onclick="scrollToMessage('${m.element.dataset.messageId}')">
+                        <i class="fas fa-comment"></i>
+                        ${m.text.substring(0, 50)}...
+                    </div>
+                `).join('');
+            } else {
+                results.innerHTML = '<div class="search-result-item">Nenhuma mensagem encontrada</div>';
+            }
+        }
+        
+        function scrollToMessage(messageId) {
+            const message = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (message) {
+                message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                message.classList.add('highlight');
+                setTimeout(() => message.classList.remove('highlight'), 2000);
+            }
+            document.getElementById('searchMessages').classList.remove('active');
+        }
+        
+        function changePhoto() {
+            document.getElementById('photoInput').click();
+        }
+        
+        function openProfile() {
+            document.getElementById('profileModal').classList.add('active');
+            
+            // Carregar dados do perfil
+            const user = LoveChat.getState().currentUser;
+            if (user) {
+                document.getElementById('profileName').value = user.nome;
+                document.getElementById('profileEmail').value = user.email;
+                document.getElementById('profilePhotoPreview').src = user.foto;
+                document.getElementById('joinDate').value = new Date(user.dataCriacao).toLocaleDateString('pt-BR');
+            }
+        }
+        
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+        
+        function saveProfile() {
+            const nome = document.getElementById('profileName').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                showToast('As senhas não coincidem', 'error');
+                return;
+            }
+            
+            // Salvar via API
+            LoveChat.profile.updateProfile({ nome, senha: newPassword || undefined });
+        }
+        
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            loadSettings();
+        }
+        
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+        
+        function loadSettings() {
+            // Carregar configurações salvas
+            const settings = JSON.parse(localStorage.getItem('lovechat_settings') || '{}');
+            
+            document.getElementById('notificationSound').checked = settings.notificationSound ?? true;
+            document.getElementById('notificationBrowser').checked = settings.notificationBrowser ?? true;
+            document.getElementById('notificationPreview').checked = settings.notificationPreview ?? false;
+            document.getElementById('showOnline').checked = settings.showOnline ?? true;
+            document.getElementById('showTyping').checked = settings.showTyping ?? true;
+            document.getElementById('readReceipt').checked = settings.readReceipt ?? true;
+            document.getElementById('saveHistory').checked = settings.saveHistory ?? true;
+            document.getElementById('autoSave').checked = settings.autoSave ?? true;
+            
+            if (settings.theme) {
+                document.querySelector(`input[value="${settings.theme}"]`).checked = true;
+            }
+            
+            if (settings.language) {
+                document.getElementById('language').value = settings.language;
+            }
+            
+            if (settings.enterBehavior) {
+                document.getElementById('enterBehavior').value = settings.enterBehavior;
+            }
+        }
+        
+        function saveSettings() {
+            const settings = {
+                notificationSound: document.getElementById('notificationSound').checked,
+                notificationBrowser: document.getElementById('notificationBrowser').checked,
+                notificationPreview: document.getElementById('notificationPreview').checked,
+                theme: document.querySelector('input[name="theme"]:checked').value,
+                showOnline: document.getElementById('showOnline').checked,
+                showTyping: document.getElementById('showTyping').checked,
+                readReceipt: document.getElementById('readReceipt').checked,
+                saveHistory: document.getElementById('saveHistory').checked,
+                autoSave: document.getElementById('autoSave').checked,
+                language: document.getElementById('language').value,
+                enterBehavior: document.getElementById('enterBehavior').value
+            };
+            
+            localStorage.setItem('lovechat_settings', JSON.stringify(settings));
+            
+            // Aplicar tema
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            
+            showToast('Configurações salvas!', 'success');
+            closeSettings();
+        }
+        
+        function closeMediaModal() {
+            document.getElementById('mediaModal').classList.remove('active');
+            document.getElementById('mediaContent').innerHTML = '';
+        }
+        
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+        
+        function showConfirm(message, onConfirm) {
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmAction').onclick = () => {
+                onConfirm();
+                closeConfirmModal();
+            };
+            document.getElementById('confirmModal').classList.add('active');
+        }
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>
