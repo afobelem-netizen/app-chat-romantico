@@ -1,7 +1,7 @@
 /**
  * LoveChat - Módulo de Autenticação
- * Versão: 1.0.0
- * Descrição: Gerencia todo o sistema de login, registro e autenticação
+ * Versão: 2.0.0
+ * Descrição: Gerencia autenticação com JSONBin.io
  */
 
 // ========================================
@@ -25,23 +25,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ========================================
 let loginAttempts = 0;
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutos
+const LOCKOUT_TIME = 15 * 60 * 1000;
 let lockoutUntil = null;
 
 // ========================================
 // INICIALIZAÇÃO DA UI
 // ========================================
 function initializeAuthUI() {
-    // Criar partículas animadas para o fundo
     createParticles();
-    
-    // Configurar toggle de senha
     setupPasswordToggles();
-    
-    // Configurar validações em tempo real
     setupRealTimeValidation();
-    
-    // Carregar temas salvos
     loadSavedTheme();
 }
 
@@ -73,13 +66,8 @@ function setupPasswordToggles() {
             const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
             input.setAttribute('type', type);
             
-            // Trocar ícone
             const icon = this.querySelector('i');
-            if (type === 'text') {
-                icon.className = 'fas fa-eye-slash';
-            } else {
-                icon.className = 'fas fa-eye';
-            }
+            icon.className = type === 'text' ? 'fas fa-eye-slash' : 'fas fa-eye';
         });
     });
 }
@@ -116,26 +104,22 @@ function debounce(func, wait) {
 // ========================================
 async function checkExistingSession() {
     try {
-        // Verificar se há usuário na sessão
         const sessionUser = getSessionUser();
         
         if (sessionUser) {
             console.log('Sessão existente encontrada:', sessionUser.email);
             
-            // Verificar se o usuário ainda existe no banco
+            // Verificar no JSONBin.io
             const users = await getUsers();
             const user = users.find(u => u.id === sessionUser.id);
             
             if (user) {
-                // Atualizar status online
                 user.online = true;
                 user.ultimoAcesso = new Date().toISOString();
                 await saveUsers(users);
                 
-                // Atualizar sessão
                 saveSession(user);
                 
-                // Redirecionar para o chat
                 showToast('Login automático realizado!', 'success');
                 setTimeout(() => {
                     window.location.href = 'pages/chat.html';
@@ -145,7 +129,6 @@ async function checkExistingSession() {
             }
         }
         
-        // Verificar se há credenciais salvas com "Lembrar de mim"
         const savedCredentials = localStorage.getItem('savedCredentials');
         if (savedCredentials) {
             const creds = JSON.parse(savedCredentials);
@@ -168,7 +151,6 @@ async function checkExistingSession() {
 async function handleLogin(event) {
     event.preventDefault();
     
-    // Verificar bloqueio por tentativas
     if (isLockedOut()) {
         const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000 / 60);
         showToast(`Muitas tentativas. Tente novamente em ${remaining} minutos.`, 'error');
@@ -179,37 +161,29 @@ async function handleLogin(event) {
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe')?.checked || false;
     
-    // Validar campos
     if (!validateEmail(email) || !validatePassword(password)) {
         return;
     }
     
-    // Mostrar loading
     showLoading(true);
     
     try {
-        // Buscar usuários
         const users = await getUsers();
         
-        // Procurar usuário
         const user = users.find(u => 
             u.email.toLowerCase() === email.toLowerCase() && 
             u.senha === password
         );
         
         if (user) {
-            // Login bem-sucedido
             loginAttempts = 0;
             
-            // Atualizar dados do usuário
             user.online = true;
             user.ultimoAcesso = new Date().toISOString();
             await saveUsers(users);
             
-            // Salvar sessão
             saveSession(user, rememberMe);
             
-            // Salvar credenciais se "Lembrar de mim"
             if (rememberMe) {
                 localStorage.setItem('savedCredentials', JSON.stringify({
                     email: email,
@@ -219,19 +193,15 @@ async function handleLogin(event) {
                 localStorage.removeItem('savedCredentials');
             }
             
-            // Mostrar mensagem de sucesso
             showToast(`Bem-vindo(a), ${user.nome}!`, 'success');
             
-            // Registrar atividade
             logActivity(user.id, 'login');
             
-            // Redirecionar
             setTimeout(() => {
                 window.location.href = 'pages/chat.html';
             }, 1500);
             
         } else {
-            // Login falhou
             loginAttempts++;
             
             if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
@@ -243,14 +213,12 @@ async function handleLogin(event) {
                     'error'
                 );
                 
-                // Shake animation no card
                 document.querySelector('.login-card')?.classList.add('shake');
                 setTimeout(() => {
                     document.querySelector('.login-card')?.classList.remove('shake');
                 }, 500);
             }
             
-            // Destacar campos com erro
             highlightError('email');
             highlightError('password');
         }
@@ -267,59 +235,48 @@ async function handleLogin(event) {
 async function handleRegister(event) {
     event.preventDefault();
     
-    const form = event.target;
-    const nome = document.getElementById('regNome')?.value.trim();
-    const email = document.getElementById('regEmail')?.value.trim();
-    const password = document.getElementById('regPassword')?.value;
-    const confirmPassword = document.getElementById('regConfirmPassword')?.value;
-    const termos = document.getElementById('termos')?.checked;
+    const nome = document.getElementById('newName')?.value.trim();
+    const email = document.getElementById('newEmail')?.value.trim();
+    const password = document.getElementById('newPassword')?.value;
+    const confirmPassword = document.getElementById('confirmPassword')?.value;
     
     // Validações
     if (!nome || nome.length < 3) {
         showToast('Nome deve ter pelo menos 3 caracteres', 'error');
-        highlightError('regNome');
         return;
     }
     
     if (!validateEmail(email)) {
         showToast('E-mail inválido', 'error');
-        highlightError('regEmail');
         return;
     }
     
     if (!validatePassword(password)) {
         showToast('Senha deve ter pelo menos 6 caracteres', 'error');
-        highlightError('regPassword');
         return;
     }
     
     if (password !== confirmPassword) {
         showToast('As senhas não coincidem', 'error');
-        highlightError('regConfirmPassword');
-        return;
-    }
-    
-    if (!termos) {
-        showToast('Você deve aceitar os termos de uso', 'warning');
         return;
     }
     
     showLoading(true);
     
     try {
+        // Buscar usuários do JSONBin.io
         const users = await getUsers();
         
         // Verificar se email já existe
         if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
             showToast('Este e-mail já está cadastrado', 'error');
-            highlightError('regEmail');
             showLoading(false);
             return;
         }
         
         // Criar novo usuário
         const newUser = {
-            id: generateId(),
+            id: Date.now(),
             nome: nome,
             email: email.toLowerCase(),
             senha: password,
@@ -335,23 +292,24 @@ async function handleRegister(event) {
             }
         };
         
+        // Adicionar ao array
         users.push(newUser);
-        await saveUsers(users);
         
-        showToast('Conta criada com sucesso!', 'success');
+        // Salvar no JSONBin.io
+        const saved = await saveUsers(users);
         
-        // Fechar modal e limpar formulário
-        closeRegisterModal();
-        form.reset();
-        
-        // Pré-preencher login
-        document.getElementById('email').value = email;
-        document.getElementById('password').value = password;
-        
-        // Focar no botão de login
-        setTimeout(() => {
-            document.querySelector('.btn-login').focus();
-        }, 500);
+        if (saved) {
+            showToast('Conta criada com sucesso!', 'success');
+            
+            // Fechar modal
+            closeCreateAccountModal();
+            
+            // Pré-preencher login
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+        } else {
+            showToast('Erro ao salvar no servidor', 'error');
+        }
         
     } catch (error) {
         console.error('Erro no registro:', error);
@@ -362,131 +320,45 @@ async function handleRegister(event) {
     }
 }
 
-async function handleLogout() {
+// ========================================
+// FUNÇÕES DE INTEGRAÇÃO COM JSONBIN.IO
+// ========================================
+async function getUsers() {
     try {
-        const user = getSessionUser();
+        // Usar o ApiService do app.js
+        if (window.LoveChat && window.LoveChat.api) {
+            return await window.LoveChat.api.getUsers();
+        }
         
-        if (user) {
-            // Atualizar status online
-            const users = await getUsers();
-            const userIndex = users.findIndex(u => u.id === user.id);
-            
-            if (userIndex >= 0) {
-                users[userIndex].online = false;
-                users[userIndex].ultimoAcesso = new Date().toISOString();
-                await saveUsers(users);
+        // Fallback para localStorage se ApiService não estiver disponível
+        const users = localStorage.getItem('users');
+        return users ? JSON.parse(users) : [];
+        
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        return [];
+    }
+}
+
+async function saveUsers(users) {
+    try {
+        // Usar o ApiService do app.js
+        if (window.LoveChat && window.LoveChat.api) {
+            // Buscar dados completos
+            const data = await window.LoveChat.api.getData();
+            if (data) {
+                data.users = users;
+                await window.LoveChat.api.updateData(data);
+                return true;
             }
-            
-            // Registrar atividade
-            logActivity(user.id, 'logout');
         }
         
-        // Limpar sessão
-        clearSession();
-        
-        showToast('Até logo!', 'info');
-        
-        // Redirecionar para login
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1000);
+        // Fallback para localStorage
+        localStorage.setItem('users', JSON.stringify(users));
+        return true;
         
     } catch (error) {
-        console.error('Erro no logout:', error);
-        // Mesmo com erro, tentar redirecionar
-        clearSession();
-        window.location.href = 'login.html';
-    }
-}
-
-// ========================================
-// RECUPERAÇÃO DE SENHA
-// ========================================
-async function handlePasswordRecovery(event) {
-    event.preventDefault();
-    
-    const email = document.getElementById('recoverEmail').value.trim();
-    
-    if (!validateEmail(email)) {
-        showToast('E-mail inválido', 'error');
-        return;
-    }
-    
-    showLoading(true);
-    
-    try {
-        const users = await getUsers();
-        const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-        
-        if (user) {
-            // Gerar token de recuperação
-            const token = generateRecoveryToken();
-            
-            // Salvar token (em produção, isso seria no backend)
-            const recoveryData = {
-                userId: user.id,
-                token: token,
-                expires: Date.now() + 3600000 // 1 hora
-            };
-            localStorage.setItem(`recovery_${user.id}`, JSON.stringify(recoveryData));
-            
-            // Simular envio de email
-            console.log('Email de recuperação enviado para:', email);
-            console.log('Token:', token);
-            
-            showToast('Instruções enviadas para seu e-mail!', 'success');
-            
-            // Fechar modal após 2 segundos
-            setTimeout(() => {
-                closeRecoverModal();
-            }, 2000);
-            
-        } else {
-            // Por segurança, não informar se o email existe ou não
-            showToast('Se o e-mail existir, você receberá instruções', 'info');
-            setTimeout(() => {
-                closeRecoverModal();
-            }, 2000);
-        }
-        
-    } catch (error) {
-        console.error('Erro na recuperação de senha:', error);
-        showToast('Erro ao processar solicitação', 'error');
-        
-    } finally {
-        showLoading(false);
-    }
-}
-
-async function resetPassword(token, newPassword) {
-    try {
-        // Buscar token válido
-        const recoveryData = JSON.parse(localStorage.getItem(`recovery_${token}`));
-        
-        if (!recoveryData || recoveryData.expires < Date.now()) {
-            showToast('Token inválido ou expirado', 'error');
-            return false;
-        }
-        
-        const users = await getUsers();
-        const user = users.find(u => u.id === recoveryData.userId);
-        
-        if (user) {
-            user.senha = newPassword;
-            await saveUsers(users);
-            
-            // Remover token usado
-            localStorage.removeItem(`recovery_${token}`);
-            
-            showToast('Senha alterada com sucesso!', 'success');
-            return true;
-        }
-        
-        return false;
-        
-    } catch (error) {
-        console.error('Erro ao resetar senha:', error);
-        showToast('Erro ao resetar senha', 'error');
+        console.error('Erro ao salvar usuários:', error);
         return false;
     }
 }
@@ -547,13 +419,11 @@ function highlightError(fieldId) {
 // GERENCIAMENTO DE SESSÃO
 // ========================================
 function getSessionUser() {
-    // Tentar sessionStorage primeiro
     const sessionUser = sessionStorage.getItem('currentUser');
     if (sessionUser) {
         return JSON.parse(sessionUser);
     }
     
-    // Tentar localStorage (lembrar de mim)
     const localUser = localStorage.getItem('currentUser');
     if (localUser) {
         return JSON.parse(localUser);
@@ -586,70 +456,10 @@ function clearSession() {
 }
 
 // ========================================
-// GERENCIAMENTO DE USUÁRIOS (LOCAL STORAGE)
-// ========================================
-async function getUsers() {
-    // Tentar localStorage primeiro
-    let users = localStorage.getItem('users');
-    
-    if (users) {
-        return JSON.parse(users);
-    }
-    
-    // Se não existir, criar usuário padrão
-    const defaultUsers = [
-        {
-            id: 1,
-            nome: 'Usuário Teste',
-            email: 'teste@email.com',
-            senha: '123456',
-            foto: 'https://via.placeholder.com/150/667eea/ffffff?text=Teste',
-            score: 150,
-            online: false,
-            ultimoAcesso: null,
-            dataCriacao: new Date().toISOString(),
-            preferencias: {
-                notificacoes: true,
-                som: true,
-                tema: 'light'
-            }
-        },
-        {
-            id: 2,
-            nome: 'Crush',
-            email: 'crush@email.com',
-            senha: '123456',
-            foto: 'https://via.placeholder.com/150/764ba2/ffffff?text=Crush',
-            score: 120,
-            online: false,
-            ultimoAcesso: null,
-            dataCriacao: new Date().toISOString(),
-            preferencias: {
-                notificacoes: true,
-                som: true,
-                tema: 'light'
-            }
-        }
-    ];
-    
-    localStorage.setItem('users', JSON.stringify(defaultUsers));
-    return defaultUsers;
-}
-
-async function saveUsers(users) {
-    localStorage.setItem('users', JSON.stringify(users));
-}
-
-// ========================================
 // UTILITÁRIOS
 // ========================================
 function generateId() {
     return Date.now() + Math.floor(Math.random() * 1000);
-}
-
-function generateRecoveryToken() {
-    return Math.random().toString(36).substring(2, 15) + 
-           Math.random().toString(36).substring(2, 15);
 }
 
 function getRandomAvatar() {
@@ -675,11 +485,9 @@ function logActivity(userId, action) {
         userId: userId,
         action: action,
         timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        ip: 'local'
+        userAgent: navigator.userAgent
     });
     
-    // Manter apenas últimas 100 atividades
     if (activities.length > 100) {
         activities.shift();
     }
@@ -702,7 +510,7 @@ function showToast(message, type = 'info') {
     if (!container) return;
     
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    toast.className = `message-toast ${type}`;
     
     const icons = {
         success: 'fa-check-circle',
@@ -738,24 +546,20 @@ function showLoading(show) {
 // ========================================
 // MODAIS
 // ========================================
-function openRegisterModal() {
-    const modal = document.getElementById('registerModal');
+function openCreateAccountModal() {
+    const modal = document.getElementById('createAccountModal');
     if (modal) {
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
-        // Focar no primeiro campo
-        setTimeout(() => {
-            document.getElementById('regNome')?.focus();
-        }, 300);
     }
 }
 
-function closeRegisterModal() {
-    const modal = document.getElementById('registerModal');
+function closeCreateAccountModal() {
+    const modal = document.getElementById('createAccountModal');
     if (modal) {
         modal.classList.remove('active');
         document.body.style.overflow = '';
+        document.getElementById('createAccountForm')?.reset();
     }
 }
 
@@ -780,55 +584,37 @@ function closeRecoverModal() {
 // SETUP DE LISTENERS
 // ========================================
 function setupAuthListeners() {
-    // Login form
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
         loginForm.addEventListener('submit', handleLogin);
     }
     
-    // Register form
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
+    const createAccountForm = document.getElementById('createAccountForm');
+    if (createAccountForm) {
+        createAccountForm.addEventListener('submit', handleRegister);
     }
     
-    // Recover form
     const recoverForm = document.getElementById('recoverForm');
     if (recoverForm) {
         recoverForm.addEventListener('submit', handlePasswordRecovery);
     }
     
-    // Fechar modais com ESC
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeRegisterModal();
+            closeCreateAccountModal();
             closeRecoverModal();
         }
     });
     
-    // Fechar modais clicando fora
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                closeRegisterModal();
+                closeCreateAccountModal();
                 closeRecoverModal();
             }
         });
     });
     
-    // Botão de criar conta
-    const createAccountBtn = document.querySelector('[data-action="create-account"]');
-    if (createAccountBtn) {
-        createAccountBtn.addEventListener('click', openRegisterModal);
-    }
-    
-    // Botão de esqueci senha
-    const forgotPasswordBtn = document.querySelector('[data-action="forgot-password"]');
-    if (forgotPasswordBtn) {
-        forgotPasswordBtn.addEventListener('click', openRecoverModal);
-    }
-    
-    // Detectar Enter nos campos
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -841,24 +627,41 @@ function setupAuthListeners() {
     });
 }
 
+// Função de recuperação de senha (placeholder)
+async function handlePasswordRecovery(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('recoverEmail').value.trim();
+    
+    if (!validateEmail(email)) {
+        showToast('E-mail inválido', 'error');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        showToast('Instruções enviadas para seu e-mail!', 'success');
+        closeRecoverModal();
+    } catch (error) {
+        showToast('Erro ao processar solicitação', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
 // ========================================
 // EXPOR FUNÇÕES GLOBAIS
 // ========================================
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
-window.handleLogout = handleLogout;
-window.openRegisterModal = openRegisterModal;
-window.closeRegisterModal = closeRegisterModal;
+window.openCreateAccountModal = openCreateAccountModal;
+window.closeCreateAccountModal = closeCreateAccountModal;
 window.openRecoverModal = openRecoverModal;
 window.closeRecoverModal = closeRecoverModal;
 window.validateEmail = validateEmail;
 window.validatePassword = validatePassword;
+window.showToast = showToast;
 
-// ========================================
-// CLEANUP
-// ========================================
-window.addEventListener('beforeunload', () => {
-    // Limpar timeouts se necessário
-});
-
-console.log('✅ auth.js carregado com sucesso');
+console.log('✅ auth.js v2.0.0 carregado com sucesso');
