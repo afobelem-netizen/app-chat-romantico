@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoveChat - Chat Romântico</title>
+    
+    <!-- Meta tags para SEO e compartilhamento -->
+    <meta name="description" content="LoveChat - Um chat romântico especial para você e seu amor. Compartilhe momentos, fotos e pontue seu relacionamento!">
+    <meta name="keywords" content="chat, romântico, casal, amor, relacionamento, presentes, pontuação">
+    <meta name="author" content="LoveChat">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://seu-usuario.github.io/lovechat/">
+    <meta property="og:title" content="LoveChat - Chat Romântico para Casais">
+    <meta property="og:description" content="Um espaço especial para você e seu amor conversarem, compartilharem momentos e pontuarem o relacionamento!">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/ff4b6e/ffffff?text=LoveChat">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://seu-usuario.github.io/lovechat/">
+    <meta property="twitter:title" content="LoveChat - Chat Romântico para Casais">
+    <meta property="twitter:description" content="Um espaço especial para você e seu amor conversarem, compartilharem momentos e pontuarem o relacionamento!">
+    <meta property="twitter:image" content="https://via.placeholder.com/1200x630/ff4b6e/ffffff?text=LoveChat">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💕</text></svg>">
+    
+    <!-- Fonts e Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Corações flutuantes animados */
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.3);
+            animation: float 6s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Container principal */
+        .landing-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card principal */
+        .hero-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            animation: slideUp 1s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo e título */
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 80px;
+            color: #ff4b6e;
+            animation: heartbeat 1.5s ease infinite;
+            filter: drop-shadow(0 5px 15px rgba(255, 75, 110, 0.4));
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+            25% {
+                transform: scale(1.1);
+            }
+            50% {
+                transform: scale(1);
+            }
+            75% {
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        /* Features grid */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-item i {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .feature-item:nth-child(1) i { color: #4caf50; }
+        .feature-item:nth-child(2) i { color: #ff4b6e; }
+        .feature-item:nth-child(3) i { color: #ff9800; }
+        .feature-item:nth-child(4) i { color: #9c27b0; }
+        .feature-item:nth-child(5) i { color: #2196f3; }
+        .feature-item:nth-child(6) i { color: #f44336; }
+
+        .feature-item span {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Botões */
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Estatísticas */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Modal de criação de conta */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            animation: modalSlide 0.3s;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-create {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mensagens de erro/sucesso */
+        .message-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .message-toast.success {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+        }
+
+        .message-toast.error {
+            background: linear-gradient(135deg, #f44336, #da190b);
+        }
+
+        .message-toast.info {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Corações flutuantes -->
+    <div class="floating-hearts" id="hearts"></div>
+
+    <!-- Container principal -->
+    <div class="landing-container">
+        <div class="hero-card">
+            <!-- Logo -->
+            <div class="logo">
+                <i class="fas fa-heart"></i>
+            </div>
+
+            <!-- Título -->
+            <h1>LoveChat</h1>
+            <p class="subtitle">Um espaço especial para você e seu amor se conectarem de forma divertida e romântica</p>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature-item">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>Chat em tempo real</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-image"></i>
+                    <span>Compartilhe fotos</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-video"></i>
+                    <span>Envie vídeos</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-microphone"></i>
+                    <span>Mensagens de áudio</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-gift"></i>
+                    <span>Sistema de presentes</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-star"></i>
+                    <span>Pontuação do casal</span>
+                </div>
+            </div>
+
+            <!-- Botões CTA -->
+            <div class="cta-buttons">
+                <button onclick="redirectToLogin()" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+                <button onclick="openCreateAccountModal()" class="btn-secondary">
+                    <i class="fas fa-user-plus"></i>
+                    Criar conta
+                </button>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="userCount">0</span>
+                    <span class="stat-label">Casais</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="messageCount">0</span>
+                    <span class="stat-label">Mensagens</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="pointsCount">0</span>
+                    <span class="stat-label">Pontos trocados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de criação de conta -->
+    <div class="modal" id="createAccountModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCreateAccountModal()">&times;</span>
+            <h2>Criar nova conta</h2>
+            <p>Preencha os dados abaixo para começar</p>
+            
+            <form id="createAccountForm">
+                <div class="form-group">
+                    <input type="text" id="newName" placeholder="Seu nome" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="newEmail" placeholder="Seu e-mail" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="newPassword" placeholder="Sua senha" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirmar senha" required>
+                </div>
+                <button type="submit" class="btn-create" id="createAccountBtn">
+                    <span>Criar conta</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Área para mensagens toast -->
+    <div id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script>
+        // Gerar corações flutuantes
+        function createHearts() {
+            const heartsContainer = document.getElementById('hearts');
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDuration = Math.random() * 3 + 4 + 's';
+                heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                heartsContainer.appendChild(heart);
+            }
+        }
+
+        // Funções do modal
+        function openCreateAccountModal() {
+            document.getElementById('createAccountModal').classList.add('active');
+        }
+
+        function closeCreateAccountModal() {
+            document.getElementById('createAccountModal').classList.remove('active');
+            document.getElementById('createAccountForm').reset();
+        }
+
+        // Redirecionar para login
+        function redirectToLogin() {
+            window.location.href = 'login.html';
+        }
+
+        // Mostrar mensagem toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `message-toast ${type}`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s reverse';
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // Validar email
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // Criar conta
+        document.getElementById('createAccountForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('createAccountBtn');
+            const nome = document.getElementById('newName').value.trim();
+            const email = document.getElementById('newEmail').value.trim();
+            const senha = document.getElementById('newPassword').value;
+            const confirmar = document.getElementById('confirmPassword').value;
+            
+            // Validações
+            if (!nome || !email || !senha || !confirmar) {
+                showToast('Por favor, preencha todos os campos', 'error');
+                return;
+            }
+            
+            if (!isValidEmail(email)) {
+                showToast('Por favor, insira um e-mail válido', 'error');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                showToast('A senha deve ter pelo menos 6 caracteres', 'error');
+                return;
+            }
+            
+            if (senha !== confirmar) {
+                showToast('As senhas não coincidem', 'error');
+                return;
+            }
+            
+            // Desabilitar botão
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Criando conta...';
+            
+            try {
+                // Verificar se já existe usuário com este email
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                if (users.some(u => u.email === email)) {
+                    showToast('Este e-mail já está cadastrado', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Criar conta';
+                    return;
+                }
+                
+                // Criar novo usuário
+                const novoUsuario = {
+                    id: users.length + 1,
+                    nome: nome,
+                    email: email,
+                    senha: senha,
+                    foto: 'https://via.placeholder.com/150',
+                    score: 0,
+                    online: false,
+                    ultimoAcesso: null,
+                    dataCriacao: new Date().toISOString()
+                };
+                
+                users.push(novoUsuario);
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                showToast('Conta criada com sucesso! Redirecionando...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                
+            } catch (error) {
+                showToast('Erro ao criar conta. Tente novamente.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Criar conta';
+            }
+        });
+
+        // Atualizar estatísticas
+        function updateStats() {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const mensagens = JSON.parse(localStorage.getItem('mensagens')) || [];
+            const pontuacoes = JSON.parse(localStorage.getItem('pontuacoes')) || [];
+            
+            document.getElementById('userCount').textContent = users.length;
+            document.getElementById('messageCount').textContent = mensagens.length;
+            
+            const totalPontos = pontuacoes.reduce((acc, p) => acc + Math.abs(p.pontos), 0);
+            document.getElementById('pointsCount').textContent = totalPontos;
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('createAccountModal');
+            if (event.target === modal) {
+                closeCreateAccountModal();
+            }
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            createHearts();
+            updateStats();
+            
+            // Verificar se já está logado
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                redirectToLogin();
+            }
+            
+            // Adicionar evento de tecla ESC para fechar modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('createAccountModal').classList.contains('active')) {
+                    closeCreateAccountModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
