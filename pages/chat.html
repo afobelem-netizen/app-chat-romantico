@@ -13,730 +13,170 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- CSS - CAMINHO ABSOLUTO -->
-    <link rel="stylesheet" href="/app-chat-romantico/css/style.css">
+    <!-- CSS - CAMINHO RELATIVO -->
+    <link rel="stylesheet" href="../css/style.css">
     
     <style>
-        /* Estilos do chat (igual ao anterior) */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
-        }
-        
-        .loading-spinner-large {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .typing-indicator {
-            display: none;
-            align-items: center;
-            gap: 5px;
-            padding: 10px 15px;
-            background: #e9ecef;
-            border-radius: 20px;
-            width: fit-content;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #666;
-            animation: fadeIn 0.3s;
-        }
-        
-        .typing-dots {
-            display: flex;
-            gap: 3px;
-        }
-        
-        .typing-dots span {
-            width: 6px;
-            height: 6px;
-            background: #666;
-            border-radius: 50%;
-            animation: typingBounce 1.4s infinite ease-in-out;
-        }
-        
-        .typing-dots span:nth-child(1) { animation-delay: 0s; }
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-6px); }
-        }
-        
-        .connection-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            z-index: 1000;
-            animation: slideIn 0.3s;
-        }
-        
-        .connection-status.online {
-            background: #4caf50;
-            color: white;
-        }
-        
-        .connection-status.offline {
-            background: #f44336;
-            color: white;
-        }
-        
-        .audio-preview {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s;
-        }
-        
-        .audio-preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .audio-preview-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            justify-content: flex-end;
-        }
-        
-        .drag-over {
-            border: 3px dashed #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
-        .message.highlight {
-            animation: highlight 2s ease;
-        }
-        
-        @keyframes highlight {
-            0%, 100% { background: transparent; }
-            50% { background: rgba(255, 215, 0, 0.2); }
-        }
-        
-        .scroll-bottom-btn {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: #667eea;
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s;
-            z-index: 100;
-        }
-        
-        .scroll-bottom-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        .scroll-bottom-btn.visible {
-            display: flex;
-        }
-        
-        .unread-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #f44336;
-            color: white;
-            font-size: 10px;
-            font-weight: 600;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 0 5px;
-        }
-        
-        .search-messages {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            background: white;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 1000;
-            width: 300px;
-        }
-        
-        .search-messages.active {
-            display: block;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .search-results {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .search-result-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .search-result-item:hover {
-            background: #f5f5f5;
-        }
-        
-        .emoji-picker {
-            position: absolute;
-            bottom: 80px;
-            left: 20px;
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 1000;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
-        }
-        
-        .emoji-picker.active {
-            display: grid;
-        }
-        
-        .emoji-item {
-            font-size: 24px;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 8px;
-            transition: background 0.3s;
-            text-align: center;
-        }
-        
-        .emoji-item:hover {
-            background: #f0f0f0;
-            transform: scale(1.2);
-        }
-        
-        .sticker-picker {
-            position: absolute;
-            bottom: 80px;
-            left: 70px;
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 1000;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        
-        .sticker-picker.active {
-            display: grid;
-        }
-        
-        .sticker-item {
-            font-size: 40px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 10px;
-            transition: all 0.3s;
-            text-align: center;
-        }
-        
-        .sticker-item:hover {
-            background: #f0f0f0;
-            transform: scale(1.1);
-        }
-        
-        .global-loader {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 99999;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(5px);
-        }
-        
-        .global-loader.active {
-            display: flex;
-        }
-        
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @media (max-width: 768px) {
-            .emoji-picker {
-                grid-template-columns: repeat(6, 1fr);
-                left: 10px;
-                right: 10px;
-                width: auto;
-            }
-            
-            .search-messages {
-                width: calc(100% - 40px);
-                right: 20px;
-            }
-            
-            .scroll-bottom-btn {
-                bottom: 80px;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .chat-container { display: flex; height: 100vh; background: white; }
+        .sidebar { width: 280px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; }
+        .profile-header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .profile-header img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; }
+        .messages-area { flex: 1; padding: 20px; overflow-y: auto; }
+        .message { max-width: 70%; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; }
+        .message.sent { align-self: flex-end; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .message.received { align-self: flex-start; background: white; color: #333; border: 1px solid #eee; }
+        .message-input-area { background: white; padding: 20px; border-top: 1px solid #eee; }
+        .message-input-wrapper { display: flex; gap: 10px; }
+        .message-input-wrapper textarea { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; resize: none; }
+        .send-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+        .scoring-area { background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 20px; justify-content: center; }
+        .presente-btn, .penalidade-btn { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
+        .presente-btn { background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); color: white; }
+        .penalidade-btn { background: linear-gradient(135deg, #f44336 0%, #ff5722 100%); color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; }
     </style>
 </head>
 <body>
-    <!-- Global Loader -->
-    <div class="global-loader" id="globalLoader">
-        <div class="loader-spinner"></div>
-    </div>
-    
-    <!-- Status de Conexão -->
-    <div class="connection-status online" id="connectionStatus">
-        <i class="fas fa-wifi"></i> Online
-    </div>
-    
-    <!-- Botão de rolar para baixo -->
-    <button class="scroll-bottom-btn" id="scrollBottomBtn" onclick="scrollToBottom()">
-        <i class="fas fa-arrow-down"></i>
-    </button>
-    
-    <!-- Container Principal do Chat -->
     <div class="chat-container">
-        
-        <!-- SIDEBAR ESQUERDA -->
-        <div class="sidebar" id="sidebar">
-            
-            <!-- Perfil do Usuário -->
+        <div class="sidebar">
             <div class="profile-header">
-                <div class="profile-avatar">
-                    <img src="https://via.placeholder.com/80" alt="Profile" id="profilePhoto">
-                    <span class="status-indicator online"></span>
-                </div>
+                <img src="https://via.placeholder.com/80" alt="Profile" id="profilePhoto">
                 <h3 id="userName">Carregando...</h3>
-                <div class="score-display">
-                    <i class="fas fa-star"></i>
-                    <span id="userScore">0</span> pontos
-                </div>
+                <div><i class="fas fa-star"></i> <span id="userScore">0</span> pontos</div>
             </div>
-            
-            <!-- Menu de Opções -->
-            <div class="menu-options">
-                <button class="menu-btn" onclick="openProfile()">
-                    <i class="fas fa-user"></i>
-                    <span>Meu Perfil</span>
-                </button>
-                
-                <button class="menu-btn" onclick="showFullRanking()">
-                    <i class="fas fa-trophy"></i>
-                    <span>Ranking</span>
-                </button>
-                
-                <button class="menu-btn" onclick="openSettings()">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
-                </button>
-                
-                <button class="menu-btn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </button>
-            </div>
-            
-            <!-- Usuários Online -->
-            <div class="online-users" id="onlineUsers"></div>
-            
-            <!-- Status do Usuário -->
-            <div class="user-status">
-                <div class="online-indicator"></div>
-                <span>Online</span>
+            <div class="menu-options" style="margin-top: 30px;">
+                <button class="menu-btn" onclick="openProfile()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; width: 100%; text-align: left; margin-bottom: 5px;"><i class="fas fa-user"></i> Meu Perfil</button>
+                <button class="menu-btn" onclick="handleLogout()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; width: 100%; text-align: left;"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
         </div>
-        
-        <!-- ÁREA PRINCIPAL DO CHAT -->
         <div class="chat-main">
-            
-            <!-- Cabeçalho do Chat -->
-            <div class="chat-header">
-                <h2>
-                    <i class="fas fa-heart"></i>
-                    Conversa Romântica
-                </h2>
-                
-                <div class="partner-info">
-                    <div class="partner-status" id="partnerStatus">
-                        <i class="fas fa-circle" style="color: #4caf50;"></i>
-                        <span>Online</span>
-                    </div>
-                    
-                    <div class="partner-score" id="totalScore">
-                        Total: 0 pts
-                    </div>
-                    
-                    <button class="btn-icon" onclick="toggleSearch()" title="Pesquisar mensagens">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
+            <div class="chat-header" style="background: white; padding: 20px; border-bottom: 1px solid #eee;">
+                <h2><i class="fas fa-heart" style="color: #ff4b6e;"></i> Conversa Romântica</h2>
             </div>
-            
-            <!-- Área de Pesquisa -->
-            <div class="search-messages" id="searchMessages">
-                <input type="text" class="search-input" placeholder="Pesquisar mensagens..." id="searchInput">
-                <div class="search-results" id="searchResults"></div>
-            </div>
-            
-            <!-- Área de Mensagens -->
             <div class="messages-area" id="messagesArea"></div>
-            
-            <!-- Indicador de Digitação -->
-            <div class="typing-indicator" id="typingIndicator">
-                <i class="fas fa-pencil-alt"></i>
-                <span>Alguém está digitando</span>
-                <div class="typing-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-            
-            <!-- Área de Pontuação -->
             <div class="scoring-area">
-                <div class="presentes">
-                    <button class="presente-btn" onclick="handleScoreAction(1, 'presente')">
-                        <i class="fas fa-smile"></i> 😊 +1
-                    </button>
-                    <button class="presente-btn" onclick="handleScoreAction(5, 'presente')">
-                        <i class="fas fa-heart"></i> ❤️ +5
-                    </button>
-                    <button class="presente-btn" onclick="handleScoreAction(10, 'presente')">
-                        <i class="fas fa-crown"></i> 👑 +10
-                    </button>
-                </div>
-                
-                <div class="penalidades">
-                    <button class="penalidade-btn" onclick="handleScoreAction(1, 'penalidade')">
-                        <i class="fas fa-frown"></i> 😞 -1
-                    </button>
-                    <button class="penalidade-btn" onclick="handleScoreAction(3, 'penalidade')">
-                        <i class="fas fa-angry"></i> 😠 -3
-                    </button>
-                    <button class="penalidade-btn" onclick="handleScoreAction(5, 'penalidade')">
-                        <i class="fas fa-skull"></i> 💀 -5
-                    </button>
-                </div>
+                <button class="presente-btn" onclick="addPoints(1)">😊 +1</button>
+                <button class="presente-btn" onclick="addPoints(5)">❤️ +5</button>
+                <button class="presente-btn" onclick="addPoints(10)">👑 +10</button>
+                <button class="penalidade-btn" onclick="addPoints(-1)">😞 -1</button>
+                <button class="penalidade-btn" onclick="addPoints(-3)">😠 -3</button>
+                <button class="penalidade-btn" onclick="addPoints(-5)">💀 -5</button>
             </div>
-            
-            <!-- Área de Input -->
             <div class="message-input-area">
-                
-                <!-- Emoji Picker -->
-                <div class="emoji-picker" id="emojiPicker"></div>
-                
-                <!-- Sticker Picker -->
-                <div class="sticker-picker" id="stickerPicker"></div>
-                
-                <!-- Ações de Input -->
-                <div class="input-actions">
-                    <button class="action-btn" onclick="toggleEmojiPicker()" title="Emojis">
-                        <i class="fas fa-smile"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="toggleStickerPicker()" title="Stickers">
-                        <i class="fas fa-sticky-note"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('image')" title="Enviar imagem">
-                        <i class="fas fa-image"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('video')" title="Enviar vídeo">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('audio')" title="Gravar áudio">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('camera')" title="Tirar foto">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                </div>
-                
-                <!-- Input de Mensagem -->
                 <div class="message-input-wrapper">
-                    <textarea 
-                        id="messageInput" 
-                        rows="1" 
-                        placeholder="Digite sua mensagem... (Enter para enviar)"
-                    ></textarea>
-                    
-                    <div class="char-counter" id="charCounter">0/1000</div>
-                    
-                    <button class="send-btn" id="sendMessageBtn" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                    <textarea id="messageInput" rows="1" placeholder="Digite sua mensagem..."></textarea>
+                    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- MODAIS -->
+
     <div class="modal" id="profileModal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Meu Perfil</h2>
-                <span class="modal-close" onclick="closeProfile()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="profile-upload">
-                    <img src="https://via.placeholder.com/120" alt="Profile" id="profilePhotoPreview">
-                    <button class="btn btn-sm" onclick="changePhoto()">
-                        <i class="fas fa-camera"></i> Alterar foto
-                    </button>
-                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-                </div>
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="profileName" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" id="profileEmail" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nova senha</label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Deixe em branco para manter">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirmar nova senha</label>
-                        <input type="password" class="form-control" id="confirmNewPassword">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Data de cadastro</label>
-                        <input type="text" class="form-control" id="joinDate" readonly>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeProfile()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveProfile()">Salvar alterações</button>
-            </div>
+            <h2>Meu Perfil</h2>
+            <p>Nome: <span id="profileNameDisplay"></span></p>
+            <p>Email: <span id="profileEmailDisplay"></span></p>
+            <button onclick="closeProfile()">Fechar</button>
         </div>
     </div>
-    
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configurações</h2>
-                <span class="modal-close" onclick="closeSettings()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h3>Notificações</h3>
-                    <div class="checkbox">
-                        <input type="checkbox" id="notificationSound" checked>
-                        <label for="notificationSound">Som de notificação</label>
-                    </div>
-                    <div class="checkbox">
-                        <input type="checkbox" id="notificationBrowser" checked>
-                        <label for="notificationBrowser">Notificações do navegador</label>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h3>Aparência</h3>
-                    <div class="radio-group">
-                        <div class="radio">
-                            <input type="radio" name="theme" id="themeLight" value="light" checked>
-                            <label for="themeLight">Claro</label>
-                        </div>
-                        <div class="radio">
-                            <input type="radio" name="theme" id="themeDark" value="dark">
-                            <label for="themeDark">Escuro</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h3>Privacidade</h3>
-                    <div class="checkbox">
-                        <input type="checkbox" id="showOnline" checked>
-                        <label for="showOnline">Mostrar quando estou online</label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeSettings()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveSettings()">Salvar configurações</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="confirmModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Confirmar</h2>
-                <span class="modal-close" onclick="closeConfirmModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p id="confirmMessage">Tem certeza que deseja continuar?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
-                <button class="btn btn-primary" id="confirmAction">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="mediaModal">
-        <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 90%;">
-            <span class="modal-close" style="color: white; font-size: 40px;" onclick="closeMediaModal()">&times;</span>
-            <div id="mediaContent" style="text-align: center;"></div>
-        </div>
-    </div>
-    
-    <!-- Input de arquivo oculto -->
-    <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*,audio/*">
-    
-    <!-- Container de Toasts -->
-    <div id="toastContainer"></div>
-    
-    <!-- SCRIPTS - CAMINHOS ABSOLUTOS -->
-    <script src="/app-chat-romantico/js/config.js"></script>
-    <script src="/app-chat-romantico/js/app.js"></script>
-    <script src="/app-chat-romantico/js/auth.js"></script>
-    <script src="/app-chat-romantico/js/chat.js"></script>
-    
+
     <script>
-        // Funções de verificação de autenticação
+        // Funções básicas
+        function getCurrentUser() {
+            return JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser'));
+        }
+
         function checkAuth() {
-            const user = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            const user = getCurrentUser();
             if (!user) {
-                window.location.href = '/app-chat-romantico/login.html';
+                window.location.href = '../login.html';
                 return null;
             }
-            return JSON.parse(user);
+            return user;
+        }
+
+        function updateUI() {
+            const user = getCurrentUser();
+            if (user) {
+                document.getElementById('userName').textContent = user.nome;
+                document.getElementById('userScore').textContent = user.score || 0;
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const message = {
+                id: Date.now(),
+                userId: getCurrentUser().id,
+                userName: getCurrentUser().nome,
+                text: text,
+                time: new Date().toLocaleTimeString()
+            };
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            displayMessage(message);
+            input.value = '';
+        }
+
+        function displayMessage(message) {
+            const area = document.getElementById('messagesArea');
+            const div = document.createElement('div');
+            div.className = 'message ' + (message.userId === getCurrentUser().id ? 'sent' : 'received');
+            div.innerHTML = `<p>${message.text}</p><small>${message.time}</small>`;
+            area.appendChild(div);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function addPoints(points) {
+            const user = getCurrentUser();
+            user.score = (user.score || 0) + points;
+            
+            if (localStorage.getItem('currentUser')) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            } else {
+                sessionStorage.setItem('currentUser', JSON.stringify(user));
+            }
+            
+            document.getElementById('userScore').textContent = user.score;
+        }
+
+        function openProfile() {
+            const user = getCurrentUser();
+            document.getElementById('profileNameDisplay').textContent = user.nome;
+            document.getElementById('profileEmailDisplay').textContent = user.email;
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfile() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function handleLogout() {
+            if (confirm('Deseja sair?')) {
+                localStorage.removeItem('currentUser');
+                sessionStorage.removeItem('currentUser');
+                window.location.href = '../login.html';
+            }
         }
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            const user = checkAuth();
-            if (user) {
-                console.log('Usuário logado:', user);
-                document.getElementById('userName').textContent = user.nome;
-                document.getElementById('userScore').textContent = user.score || 0;
-                document.getElementById('profilePhoto').src = user.foto;
-            }
+            if (!checkAuth()) return;
+            updateUI();
+            
+            // Carregar mensagens existentes
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            messages.forEach(displayMessage);
         });
-
-        // Funções de logout
-        function handleLogout() {
-            if (confirm('Deseja realmente sair?')) {
-                localStorage.removeItem('currentUser');
-                sessionStorage.removeItem('currentUser');
-                window.location.href = '/app-chat-romantico/login.html';
-            }
-        }
-
-        // Funções placeholder (serão implementadas pelo chat.js)
-        function sendMessage() { console.log('sendMessage'); }
-        function handleScoreAction(p, t) { console.log('handleScoreAction', p, t); }
-        function openProfile() { console.log('openProfile'); }
-        function closeProfile() { console.log('closeProfile'); }
-        function saveProfile() { console.log('saveProfile'); }
-        function openSettings() { console.log('openSettings'); }
-        function closeSettings() { console.log('closeSettings'); }
-        function saveSettings() { console.log('saveSettings'); }
-        function showFullRanking() { console.log('showFullRanking'); }
-        function toggleSearch() { console.log('toggleSearch'); }
-        function toggleEmojiPicker() { console.log('toggleEmojiPicker'); }
-        function toggleStickerPicker() { console.log('toggleStickerPicker'); }
-        function handleMediaAction(a) { console.log('handleMediaAction', a); }
-        function scrollToBottom() { console.log('scrollToBottom'); }
-        function closeConfirmModal() { console.log('closeConfirmModal'); }
-        function closeMediaModal() { console.log('closeMediaModal'); }
-        function changePhoto() { console.log('changePhoto'); }
     </script>
 </body>
 </html>
