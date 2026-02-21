@@ -173,6 +173,20 @@
             75% { transform: scale(1.1); }
         }
 
+        .partner-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .partner-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 14px;
+        }
+
         .partner-score {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -547,6 +561,11 @@
                 display: none;
             }
 
+            .partner-info {
+                flex-direction: column;
+                gap: 5px;
+            }
+
             .message {
                 max-width: 85%;
             }
@@ -598,8 +617,14 @@
                     <i class="fas fa-heart"></i>
                     Conversa Romântica
                 </h2>
-                <div class="partner-score" id="totalScore">
-                    Total: 0 pts
+                <div class="partner-info">
+                    <div class="partner-status" id="partnerStatus">
+                        <i class="fas fa-circle" style="color: #4caf50;"></i>
+                        <span id="partnerName">Carregando...</span>
+                    </div>
+                    <div class="partner-score" id="partnerScore">
+                        0 pts
+                    </div>
                 </div>
             </div>
 
@@ -611,25 +636,25 @@
                 </div>
             </div>
 
-            <!-- Área de Pontuação -->
+            <!-- Área de Pontuação (agora para pontuar o parceiro) -->
             <div class="scoring-area">
-                <button class="score-btn positive" onclick="addPoints(1, 'Carinho')">
-                    <i class="fas fa-smile"></i> +1
+                <button class="score-btn positive" onclick="pontuarParceiro(1, 'Carinho')">
+                    <i class="fas fa-smile"></i> Dar +1
                 </button>
-                <button class="score-btn positive" onclick="addPoints(5, 'Amor')">
-                    <i class="fas fa-heart"></i> +5
+                <button class="score-btn positive" onclick="pontuarParceiro(5, 'Amor')">
+                    <i class="fas fa-heart"></i> Dar +5
                 </button>
-                <button class="score-btn positive" onclick="addPoints(10, 'Especial')">
-                    <i class="fas fa-crown"></i> +10
+                <button class="score-btn positive" onclick="pontuarParceiro(10, 'Especial')">
+                    <i class="fas fa-crown"></i> Dar +10
                 </button>
-                <button class="score-btn negative" onclick="addPoints(-1, 'Esquecimento')">
-                    <i class="fas fa-frown"></i> -1
+                <button class="score-btn negative" onclick="pontuarParceiro(-1, 'Esquecimento')">
+                    <i class="fas fa-frown"></i> Penalidade -1
                 </button>
-                <button class="score-btn negative" onclick="addPoints(-3, 'Atraso')">
-                    <i class="fas fa-angry"></i> -3
+                <button class="score-btn negative" onclick="pontuarParceiro(-3, 'Atraso')">
+                    <i class="fas fa-angry"></i> Penalidade -3
                 </button>
-                <button class="score-btn negative" onclick="addPoints(-5, 'Falha')">
-                    <i class="fas fa-skull"></i> -5
+                <button class="score-btn negative" onclick="pontuarParceiro(-5, 'Falha')">
+                    <i class="fas fa-skull"></i> Penalidade -5
                 </button>
             </div>
 
@@ -694,6 +719,7 @@
         // VARIÁVEIS GLOBAIS
         // ========================================
         let currentUser = null;
+        let partnerUser = null;
         let messages = [];
         let pollingInterval = null;
 
@@ -771,7 +797,7 @@
             data.scores = data.scores || [];
             data.scores.push(score);
             
-            // Atualizar score do usuário
+            // Atualizar score do usuário que RECEBEU a pontuação
             const user = data.users.find(u => u.id === score.userId);
             if (user) {
                 user.score = (user.score || 0) + score.points;
@@ -801,6 +827,21 @@
                 console.error('Erro ao carregar usuário:', e);
                 window.location.href = '../login.html';
                 return false;
+            }
+        }
+
+        async function carregarParceiro() {
+            try {
+                const users = await getUsers();
+                // Encontrar o outro usuário (que não é o currentUser)
+                partnerUser = users.find(u => u.id !== currentUser.id);
+                
+                if (partnerUser) {
+                    document.getElementById('partnerName').textContent = partnerUser.nome;
+                    document.getElementById('partnerScore').textContent = (partnerUser.score || 0) + ' pts';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar parceiro:', error);
             }
         }
 
@@ -890,40 +931,46 @@
             input.value = '';
         }
 
-        async function addPoints(points, reason) {
+        // ========================================
+        // FUNÇÃO CORRIGIDA: PONTUAR O PARCEIRO
+        // ========================================
+        async function pontuarParceiro(points, reason) {
+            if (!partnerUser) {
+                alert('Parceiro não encontrado!');
+                return;
+            }
+
+            // Confirmar ação
+            const acao = points > 0 ? 'dar' : 'aplicar';
+            if (!confirm(`Deseja ${acao} ${Math.abs(points)} pontos para ${partnerUser.nome}?`)) {
+                return;
+            }
+            
+            // Registrar pontuação para o PARCEIRO
             const score = {
-                userId: currentUser.id,
+                userId: partnerUser.id, // ID do parceiro (quem RECEBE)
+                fromUserId: currentUser.id, // ID de quem DEU
                 points: points,
                 reason: reason
             };
             
             await addScore(score);
             
-            // Atualizar score local
-            currentUser.score = (currentUser.score || 0) + points;
-            localStorage.setItem('usuario', JSON.stringify(currentUser));
-            document.getElementById('userScore').textContent = currentUser.score;
+            // Atualizar dados do parceiro
+            partnerUser.score = (partnerUser.score || 0) + points;
+            document.getElementById('partnerScore').textContent = partnerUser.score + ' pts';
             
             // Mensagem de sistema
             const systemMessage = {
                 userId: 'system',
                 userName: 'Sistema',
                 type: 'text',
-                content: `${points > 0 ? '🎁' : '⚠️'} ${currentUser.nome} ${points > 0 ? 'ganhou' : 'perdeu'} ${Math.abs(points)} pontos! ${reason}`
+                content: `${points > 0 ? '🎁' : '⚠️'} ${currentUser.nome} ${points > 0 ? 'deu' : 'aplicou'} ${Math.abs(points)} pontos para ${partnerUser.nome}! ${reason}`
             };
             
             await addMessage(systemMessage);
             messages.push(systemMessage);
             atualizarMensagens();
-            
-            // Atualizar total
-            atualizarTotalScore();
-        }
-
-        async function atualizarTotalScore() {
-            const users = await getUsers();
-            const total = users.reduce((acc, u) => acc + (u.score || 0), 0);
-            document.getElementById('totalScore').textContent = `Total: ${total} pts`;
         }
 
         // ========================================
@@ -1028,7 +1075,7 @@
         // ========================================
         
         function showProfile() {
-            alert(`Perfil do usuário:\n\nNome: ${currentUser.nome}\nEmail: ${currentUser.email}\nPontos: ${currentUser.score}`);
+            alert(`Meu Perfil:\n\nNome: ${currentUser.nome}\nEmail: ${currentUser.email}\nMeus Pontos: ${currentUser.score}`);
         }
 
         async function showRanking() {
@@ -1041,16 +1088,18 @@
                 const users = await getUsers();
                 const sorted = users.sort((a, b) => (b.score || 0) - (a.score || 0));
                 
-                list.innerHTML = sorted.map((user, index) => `
+                list.innerHTML = sorted.map((user, index) => {
+                    const isMe = user.id === currentUser.id;
+                    return `
                     <div class="ranking-item">
                         <div class="ranking-position ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">
                             ${index + 1}
                         </div>
                         <img src="${user.foto || 'https://via.placeholder.com/40'}" alt="${user.nome}" class="ranking-avatar">
-                        <span class="ranking-name">${user.nome}</span>
+                        <span class="ranking-name">${user.nome} ${isMe ? '(eu)' : ''}</span>
                         <span class="ranking-score">${user.score || 0} pts</span>
                     </div>
-                `).join('');
+                `}).join('');
             } catch (error) {
                 list.innerHTML = '<p style="color: red; text-align: center;">Erro ao carregar ranking</p>';
             }
@@ -1075,12 +1124,26 @@
             if (pollingInterval) clearInterval(pollingInterval);
             
             pollingInterval = setInterval(async () => {
+                // Atualizar mensagens
                 const novas = await getMessages();
                 if (novas.length > messages.length) {
                     messages = novas;
                     atualizarMensagens();
                 }
-                await atualizarTotalScore();
+                
+                // Atualizar pontuações
+                const users = await getUsers();
+                const updatedPartner = users.find(u => u.id === partnerUser?.id);
+                if (updatedPartner) {
+                    partnerUser = updatedPartner;
+                    document.getElementById('partnerScore').textContent = (partnerUser.score || 0) + ' pts';
+                }
+                
+                const updatedMe = users.find(u => u.id === currentUser.id);
+                if (updatedMe) {
+                    currentUser.score = updatedMe.score;
+                    document.getElementById('userScore').textContent = currentUser.score || 0;
+                }
             }, 3000);
         }
 
@@ -1093,8 +1156,8 @@
             
             if (!carregarUsuario()) return;
             
+            await carregarParceiro();
             await carregarMensagens();
-            await atualizarTotalScore();
             startPolling();
             
             // Enter para enviar
