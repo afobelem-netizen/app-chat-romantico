@@ -3,179 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveChat - Conversa Romântica</title>
-    
-    <!-- Meta tags -->
-    <meta name="description" content="Converse com seu amor de forma especial">
-    <meta name="theme-color" content="#667eea">
-    
-    <!-- Fonts e Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>LoveChat - Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- CSS - CAMINHO RELATIVO -->
-    <link rel="stylesheet" href="../css/style.css">
-    
     <style>
-        body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .chat-container { display: flex; height: 100vh; background: white; }
-        .sidebar { width: 280px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: #f5f5f5; }
-        .profile-header { text-align: center; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
-        .profile-header img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; }
-        .messages-area { flex: 1; padding: 20px; overflow-y: auto; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 10px; margin-bottom: 10px; }
-        .message.sent { align-self: flex-end; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .message.received { align-self: flex-start; background: white; color: #333; border: 1px solid #eee; }
-        .message-input-area { background: white; padding: 20px; border-top: 1px solid #eee; }
-        .message-input-wrapper { display: flex; gap: 10px; }
-        .message-input-wrapper textarea { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; resize: none; }
-        .send-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
-        .scoring-area { background: white; padding: 15px; border-top: 1px solid #eee; display: flex; gap: 20px; justify-content: center; }
-        .presente-btn, .penalidade-btn { border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; }
-        .presente-btn { background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%); color: white; }
-        .penalidade-btn { background: linear-gradient(135deg, #f44336 0%, #ff5722 100%); color: white; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .chat-card { background: white; border-radius: 20px; padding: 40px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 500px; width: 90%; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .user-info { background: #f5f5f5; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.4); }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="sidebar">
-            <div class="profile-header">
-                <img src="https://via.placeholder.com/80" alt="Profile" id="profilePhoto">
-                <h3 id="userName">Carregando...</h3>
-                <div><i class="fas fa-star"></i> <span id="userScore">0</span> pontos</div>
-            </div>
-            <div class="menu-options" style="margin-top: 30px;">
-                <button class="menu-btn" onclick="openProfile()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; width: 100%; text-align: left; margin-bottom: 5px;"><i class="fas fa-user"></i> Meu Perfil</button>
-                <button class="menu-btn" onclick="handleLogout()" style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px; width: 100%; text-align: left;"><i class="fas fa-sign-out-alt"></i> Sair</button>
-            </div>
+    <div class="chat-card">
+        <i class="fas fa-heart" style="font-size: 60px; color: #ff4b6e; margin-bottom: 20px;"></i>
+        <h1>Chat LoveChat</h1>
+        
+        <div class="user-info" id="userInfo">
+            <p>Carregando informações do usuário...</p>
         </div>
-        <div class="chat-main">
-            <div class="chat-header" style="background: white; padding: 20px; border-bottom: 1px solid #eee;">
-                <h2><i class="fas fa-heart" style="color: #ff4b6e;"></i> Conversa Romântica</h2>
-            </div>
-            <div class="messages-area" id="messagesArea"></div>
-            <div class="scoring-area">
-                <button class="presente-btn" onclick="addPoints(1)">😊 +1</button>
-                <button class="presente-btn" onclick="addPoints(5)">❤️ +5</button>
-                <button class="presente-btn" onclick="addPoints(10)">👑 +10</button>
-                <button class="penalidade-btn" onclick="addPoints(-1)">😞 -1</button>
-                <button class="penalidade-btn" onclick="addPoints(-3)">😠 -3</button>
-                <button class="penalidade-btn" onclick="addPoints(-5)">💀 -5</button>
-            </div>
-            <div class="message-input-area">
-                <div class="message-input-wrapper">
-                    <textarea id="messageInput" rows="1" placeholder="Digite sua mensagem..."></textarea>
-                    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <h2>Meu Perfil</h2>
-            <p>Nome: <span id="profileNameDisplay"></span></p>
-            <p>Email: <span id="profileEmailDisplay"></span></p>
-            <button onclick="closeProfile()">Fechar</button>
-        </div>
+        
+        <p>Você está logado com sucesso! 🎉</p>
+        <p><small>Esta é uma versão simplificada para teste.</small></p>
+        
+        <button class="btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Sair
+        </button>
     </div>
 
     <script>
-        // Funções básicas
-        function getCurrentUser() {
-            return JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser'));
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../login.html';
         }
 
-        function checkAuth() {
-            const user = getCurrentUser();
-            if (!user) {
-                window.location.href = '../login.html';
-                return null;
-            }
-            return user;
-        }
-
-        function updateUI() {
-            const user = getCurrentUser();
-            if (user) {
-                document.getElementById('userName').textContent = user.nome;
-                document.getElementById('userScore').textContent = user.score || 0;
-            }
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (!text) return;
-            
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const message = {
-                id: Date.now(),
-                userId: getCurrentUser().id,
-                userName: getCurrentUser().nome,
-                text: text,
-                time: new Date().toLocaleTimeString()
-            };
-            messages.push(message);
-            localStorage.setItem('messages', JSON.stringify(messages));
-            
-            displayMessage(message);
-            input.value = '';
-        }
-
-        function displayMessage(message) {
-            const area = document.getElementById('messagesArea');
-            const div = document.createElement('div');
-            div.className = 'message ' + (message.userId === getCurrentUser().id ? 'sent' : 'received');
-            div.innerHTML = `<p>${message.text}</p><small>${message.time}</small>`;
-            area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
-        }
-
-        function addPoints(points) {
-            const user = getCurrentUser();
-            user.score = (user.score || 0) + points;
-            
-            if (localStorage.getItem('currentUser')) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-            } else {
-                sessionStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            
-            document.getElementById('userScore').textContent = user.score;
-        }
-
-        function openProfile() {
-            const user = getCurrentUser();
-            document.getElementById('profileNameDisplay').textContent = user.nome;
-            document.getElementById('profileEmailDisplay').textContent = user.email;
-            document.getElementById('profileModal').classList.add('active');
-        }
-
-        function closeProfile() {
-            document.getElementById('profileModal').classList.remove('active');
-        }
-
-        function handleLogout() {
-            if (confirm('Deseja sair?')) {
-                localStorage.removeItem('currentUser');
-                sessionStorage.removeItem('currentUser');
-                window.location.href = '../login.html';
-            }
-        }
-
-        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
-            if (!checkAuth()) return;
-            updateUI();
+            const userData = localStorage.getItem('currentUser');
             
-            // Carregar mensagens existentes
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            messages.forEach(displayMessage);
+            if (!userData) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                document.getElementById('userInfo').innerHTML = `
+                    <p><strong>👤 Nome:</strong> ${user.nome}</p>
+                    <p><strong>📧 Email:</strong> ${user.email}</p>
+                    <p><strong>⭐ Pontos:</strong> ${user.score || 0}</p>
+                `;
+            } catch (e) {
+                console.error('Erro ao carregar usuário:', e);
+            }
         });
     </script>
 </body>
