@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveChat - Conversa Romântica</title>
+    <title>LoveChat - Chat Romântico</title>
     
     <!-- Fonts e Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- CSS -->
@@ -42,6 +42,7 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Indicador de digitação */
         .typing-indicator {
             display: none;
             align-items: center;
@@ -50,7 +51,7 @@
             background: #e9ecef;
             border-radius: 20px;
             width: fit-content;
-            margin-bottom: 10px;
+            margin: 10px;
             font-size: 13px;
             color: #666;
         }
@@ -77,6 +78,7 @@
             30% { transform: translateY(-6px); }
         }
         
+        /* Status de conexão */
         .connection-status {
             position: fixed;
             top: 10px;
@@ -92,13 +94,13 @@
         .connection-status.online { background: #4caf50; color: white; }
         .connection-status.offline { background: #f44336; color: white; }
         
+        /* Preview de áudio */
         .audio-preview {
             background: white;
             border-radius: 15px;
             padding: 15px;
-            margin-bottom: 10px;
+            margin: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s;
         }
         
         .audio-preview-header {
@@ -115,11 +117,13 @@
             justify-content: flex-end;
         }
         
+        /* Drag and drop */
         .drag-over {
             border: 3px dashed #667eea;
             background: rgba(102, 126, 234, 0.1);
         }
         
+        /* Mensagem destacada */
         .message.highlight {
             animation: highlight 2s ease;
         }
@@ -129,6 +133,7 @@
             50% { background: rgba(255, 215, 0, 0.2); }
         }
         
+        /* Botão de rolar para baixo */
         .scroll-bottom-btn {
             position: fixed;
             bottom: 100px;
@@ -151,6 +156,7 @@
         .scroll-bottom-btn:hover { transform: scale(1.1); }
         .scroll-bottom-btn.visible { display: flex; }
         
+        /* Contador de não lidas */
         .unread-badge {
             position: absolute;
             top: -5px;
@@ -168,6 +174,7 @@
             padding: 0 5px;
         }
         
+        /* Pesquisa de mensagens */
         .search-messages {
             position: absolute;
             top: 60px;
@@ -205,6 +212,7 @@
         
         .search-result-item:hover { background: #f5f5f5; }
         
+        /* Emoji picker */
         .emoji-picker {
             position: absolute;
             bottom: 80px;
@@ -235,6 +243,7 @@
             transform: scale(1.2);
         }
         
+        /* Sticker picker */
         .sticker-picker {
             position: absolute;
             bottom: 80px;
@@ -265,6 +274,7 @@
             transform: scale(1.1);
         }
         
+        /* Global Loader */
         .global-loader {
             display: none;
             position: fixed;
@@ -290,6 +300,58 @@
             animation: spin 1s linear infinite;
         }
         
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .toast {
+            min-width: 300px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 10px;
+            animation: slideInRight 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.success { background: linear-gradient(135deg, #4caf50, #45a049); }
+        .toast.error { background: linear-gradient(135deg, #f44336, #da190b); }
+        .toast.info { background: linear-gradient(135deg, #2196f3, #1976d2); }
+        
+        .toast.fade-out {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
         @media (max-width: 768px) {
             .emoji-picker {
                 grid-template-columns: repeat(6, 1fr);
@@ -304,37 +366,6 @@
             }
             
             .scroll-bottom-btn { bottom: 80px; }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
         }
     </style>
 </head>
@@ -358,7 +389,7 @@
     <div class="chat-container">
         
         <!-- SIDEBAR ESQUERDA -->
-        <div class="sidebar" id="sidebar">
+        <div class="sidebar">
             
             <!-- Perfil do Usuário -->
             <div class="profile-header">
@@ -396,9 +427,6 @@
                 </button>
             </div>
             
-            <!-- Usuários Online -->
-            <div class="online-users" id="onlineUsers"></div>
-            
             <!-- Status do Usuário -->
             <div class="user-status">
                 <div class="online-indicator"></div>
@@ -417,25 +445,10 @@
                 </h2>
                 
                 <div class="partner-info">
-                    <div class="partner-status" id="partnerStatus">
-                        <i class="fas fa-circle" style="color: #4caf50;"></i>
-                        <span>Online</span>
-                    </div>
-                    
                     <div class="partner-score" id="totalScore">
                         Total: 0 pts
                     </div>
-                    
-                    <button class="btn-icon" onclick="toggleSearch()" title="Pesquisar mensagens">
-                        <i class="fas fa-search"></i>
-                    </button>
                 </div>
-            </div>
-            
-            <!-- Área de Pesquisa -->
-            <div class="search-messages" id="searchMessages">
-                <input type="text" class="search-input" placeholder="Pesquisar mensagens..." id="searchInput">
-                <div class="search-results" id="searchResults"></div>
             </div>
             
             <!-- Área de Mensagens -->
@@ -444,7 +457,7 @@
             <!-- Indicador de Digitação -->
             <div class="typing-indicator" id="typingIndicator">
                 <i class="fas fa-pencil-alt"></i>
-                <span>Alguém está digitando</span>
+                <span>Digitando...</span>
                 <div class="typing-dots">
                     <span></span>
                     <span></span>
@@ -482,32 +495,10 @@
             <!-- Área de Input -->
             <div class="message-input-area">
                 
-                <!-- Emoji Picker -->
-                <div class="emoji-picker" id="emojiPicker"></div>
-                
-                <!-- Sticker Picker -->
-                <div class="sticker-picker" id="stickerPicker"></div>
-                
                 <!-- Ações de Input -->
                 <div class="input-actions">
-                    <button class="action-btn" onclick="toggleEmojiPicker()" title="Emojis">
-                        <i class="fas fa-smile"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="toggleStickerPicker()" title="Stickers">
-                        <i class="fas fa-sticky-note"></i>
-                    </button>
-                    
                     <button class="action-btn" onclick="handleMediaAction('image')" title="Enviar imagem">
                         <i class="fas fa-image"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('video')" title="Enviar vídeo">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    
-                    <button class="action-btn" onclick="handleMediaAction('audio')" title="Gravar áudio">
-                        <i class="fas fa-microphone"></i>
                     </button>
                     
                     <button class="action-btn" onclick="handleMediaAction('camera')" title="Tirar foto">
@@ -523,8 +514,6 @@
                         placeholder="Digite sua mensagem... (Enter para enviar)"
                     ></textarea>
                     
-                    <div class="char-counter" id="charCounter">0/1000</div>
-                    
                     <button class="send-btn" id="sendMessageBtn" onclick="sendMessage()">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -533,138 +522,51 @@
         </div>
     </div>
     
-    <!-- MODAIS -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Meu Perfil</h2>
-                <span class="modal-close" onclick="closeProfile()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="profile-upload">
-                    <img src="https://via.placeholder.com/120" alt="Profile" id="profilePhotoPreview">
-                    <button class="btn btn-sm" onclick="changePhoto()">
-                        <i class="fas fa-camera"></i> Alterar foto
-                    </button>
-                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-                </div>
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="profileName" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" id="profileEmail" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nova senha</label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Deixe em branco para manter">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Confirmar nova senha</label>
-                        <input type="password" class="form-control" id="confirmNewPassword">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Data de cadastro</label>
-                        <input type="text" class="form-control" id="joinDate" readonly>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeProfile()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveProfile()">Salvar alterações</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Configurações</h2>
-                <span class="modal-close" onclick="closeSettings()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h3>Notificações</h3>
-                    <div class="checkbox">
-                        <input type="checkbox" id="notificationSound" checked>
-                        <label for="notificationSound">Som de notificação</label>
-                    </div>
-                    <div class="checkbox">
-                        <input type="checkbox" id="notificationBrowser" checked>
-                        <label for="notificationBrowser">Notificações do navegador</label>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h3>Aparência</h3>
-                    <div class="radio-group">
-                        <div class="radio">
-                            <input type="radio" name="theme" id="themeLight" value="light" checked>
-                            <label for="themeLight">Claro</label>
-                        </div>
-                        <div class="radio">
-                            <input type="radio" name="theme" id="themeDark" value="dark">
-                            <label for="themeDark">Escuro</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h3>Privacidade</h3>
-                    <div class="checkbox">
-                        <input type="checkbox" id="showOnline" checked>
-                        <label for="showOnline">Mostrar quando estou online</label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeSettings()">Cancelar</button>
-                <button class="btn btn-primary" onclick="saveSettings()">Salvar configurações</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="confirmModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Confirmar</h2>
-                <span class="modal-close" onclick="closeConfirmModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p id="confirmMessage">Tem certeza que deseja continuar?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
-                <button class="btn btn-primary" id="confirmAction">Confirmar</button>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" id="mediaModal">
-        <div class="modal-content" style="background: transparent; box-shadow: none; max-width: 90%;">
-            <span class="modal-close" style="color: white; font-size: 40px;" onclick="closeMediaModal()">&times;</span>
-            <div id="mediaContent" style="text-align: center;"></div>
-        </div>
-    </div>
-    
-    <!-- Input de arquivo oculto -->
-    <input type="file" id="fileInput" style="display: none;" accept="image/*,video/*,audio/*">
-    
     <!-- Container de Toasts -->
-    <div id="toastContainer"></div>
-    
-    <!-- Scripts -->
-    <script src="../js/config.js"></script>
-    <script src="../js/app.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/chat.js"></script>
-    
-    <script>
-        // Funções básicas para garantir funcionamento
-        let currentUser = null;
+    <div class="toast-container" id="toastContainer"></div>
 
+    <script>
+        // ========================================
+        // FUNÇÕES DE UTILIDADE
+        // ========================================
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <i class="fas ${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    if (toast.parentNode) container.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('globalLoader').style.display = show ? 'flex' : 'none';
+        }
+
+        // ========================================
+        // FUNÇÕES DE AUTENTICAÇÃO
+        // ========================================
+        
         function getCurrentUser() {
-            return JSON.parse(localStorage.getItem('currentUser'));
+            const user = localStorage.getItem('currentUser');
+            return user ? JSON.parse(user) : null;
         }
 
         function checkAuth() {
@@ -681,69 +583,8 @@
             if (user) {
                 document.getElementById('userName').textContent = user.nome;
                 document.getElementById('userScore').textContent = user.score || 0;
-                document.getElementById('profilePhoto').src = user.foto || 'https://via.placeholder.com/80';
+                document.getElementById('profilePhoto').src = user.foto || 'https://via.placeholder.com/150/667eea/ffffff?text=User';
             }
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `message-toast ${type}`;
-            toast.innerHTML = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function showLoading(show) {
-            document.getElementById('globalLoader').style.display = show ? 'flex' : 'none';
-        }
-
-        // Funções do chat
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (!text) return;
-            
-            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const user = getCurrentUser();
-            
-            const message = {
-                id: Date.now(),
-                userId: user.id,
-                userName: user.nome,
-                text: text,
-                time: new Date().toLocaleTimeString()
-            };
-            
-            messages.push(message);
-            localStorage.setItem('messages', JSON.stringify(messages));
-            
-            displayMessage(message);
-            input.value = '';
-        }
-
-        function displayMessage(message) {
-            const area = document.getElementById('messagesArea');
-            const isOwn = message.userId === getCurrentUser()?.id;
-            
-            const div = document.createElement('div');
-            div.className = `message ${isOwn ? 'sent' : 'received'}`;
-            div.innerHTML = `
-                ${!isOwn ? `<div class="sender-name">${message.userName}</div>` : ''}
-                <p>${message.text}</p>
-                <div class="message-time">${message.time}</div>
-            `;
-            
-            area.appendChild(div);
-            area.scrollTop = area.scrollHeight;
-        }
-
-        function handleScoreAction(points, type) {
-            const user = getCurrentUser();
-            user.score = (user.score || 0) + (type === 'presente' ? points : -points);
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            document.getElementById('userScore').textContent = user.score;
-            showToast(`${Math.abs(points)} pontos ${type === 'presente' ? 'adicionados' : 'removidos'}!`, 'success');
         }
 
         function handleLogout() {
@@ -753,37 +594,156 @@
             }
         }
 
+        // ========================================
+        // FUNÇÕES DO CHAT
+        // ========================================
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) {
+                showToast('Digite uma mensagem', 'info');
+                return;
+            }
+            
+            const user = getCurrentUser();
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            
+            const message = {
+                id: Date.now(),
+                userId: user.id,
+                userName: user.nome,
+                type: 'text',
+                content: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            displayMessage(message);
+            input.value = '';
+            scrollToBottom();
+            showToast('Mensagem enviada', 'success');
+        }
+
+        function displayMessage(message) {
+            const area = document.getElementById('messagesArea');
+            const user = getCurrentUser();
+            const isOwn = message.userId === user?.id;
+            
+            const div = document.createElement('div');
+            div.className = `message ${isOwn ? 'sent' : 'received'}`;
+            
+            const time = new Date(message.timestamp).toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            div.innerHTML = `
+                ${!isOwn ? `<div class="sender-name">${message.userName}</div>` : ''}
+                <p>${message.content}</p>
+                <div class="message-time">${time}</div>
+            `;
+            
+            area.appendChild(div);
+        }
+
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            messages.forEach(displayMessage);
+            scrollToBottom();
+        }
+
         function scrollToBottom() {
             const area = document.getElementById('messagesArea');
             area.scrollTop = area.scrollHeight;
         }
 
-        // Funções placeholder
-        function openProfile() { showToast('Perfil - Em desenvolvimento', 'info'); }
-        function closeProfile() {}
-        function saveProfile() {}
-        function openSettings() { showToast('Configurações - Em desenvolvimento', 'info'); }
-        function closeSettings() {}
-        function saveSettings() {}
-        function showFullRanking() { showToast('Ranking - Em desenvolvimento', 'info'); }
-        function toggleSearch() { showToast('Pesquisa - Em desenvolvimento', 'info'); }
-        function toggleEmojiPicker() {}
-        function toggleStickerPicker() {}
-        function handleMediaAction(action) { showToast(`Enviar ${action} - Em desenvolvimento`, 'info'); }
-        function closeConfirmModal() {}
-        function closeMediaModal() {}
-        function changePhoto() {}
+        // ========================================
+        // FUNÇÕES DE PONTUAÇÃO
+        // ========================================
         
-        // Inicialização
+        function handleScoreAction(points, type) {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const action = type === 'presente' ? 'adicionados' : 'removidos';
+            const signal = type === 'presente' ? points : -points;
+            
+            user.score = (user.score || 0) + signal;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            document.getElementById('userScore').textContent = user.score;
+            showToast(`${Math.abs(points)} pontos ${action}!`, 'success');
+            
+            // Mensagem de sistema
+            const message = {
+                id: Date.now(),
+                userId: 'system',
+                userName: 'Sistema',
+                type: 'text',
+                content: `${type === 'presente' ? '🎁' : '⚠️'} ${user.nome} ${type === 'presente' ? 'ganhou' : 'perdeu'} ${Math.abs(points)} pontos!`,
+                timestamp: new Date().toISOString()
+            };
+            
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            displayMessage(message);
+        }
+
+        // ========================================
+        // FUNÇÕES DE MÍDIA
+        // ========================================
+        
+        function handleMediaAction(type) {
+            showToast(`Envio de ${type} em breve!`, 'info');
+        }
+
+        // ========================================
+        // FUNÇÕES DOS MODAIS
+        // ========================================
+        
+        function openProfile() {
+            const user = getCurrentUser();
+            alert(`Perfil do usuário:\nNome: ${user.nome}\nEmail: ${user.email}\nPontos: ${user.score}`);
+        }
+
+        function showFullRanking() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const sorted = users.sort((a, b) => (b.score || 0) - (a.score || 0));
+            
+            let rankingText = '🏆 RANKING 🏆\n\n';
+            sorted.forEach((user, index) => {
+                rankingText += `${index + 1}. ${user.nome} - ${user.score || 0} pontos\n`;
+            });
+            
+            alert(rankingText);
+        }
+
+        function openSettings() {
+            alert('Configurações - Em desenvolvimento');
+        }
+
+        // ========================================
+        // INICIALIZAÇÃO
+        // ========================================
+        
         document.addEventListener('DOMContentLoaded', function() {
             const user = checkAuth();
             if (user) {
-                currentUser = user;
                 updateUI();
+                loadMessages();
                 
-                // Carregar mensagens
-                const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-                messages.forEach(displayMessage);
+                // Evento de tecla Enter
+                document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
             }
         });
     </script>
