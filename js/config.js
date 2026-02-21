@@ -10,14 +10,14 @@
 const JSONBIN_CONFIG = {
     // 🔴 SUBSTITUA PELOS SEUS VALORES REAIS
     // API Key obtida em: https://jsonbin.io/api-keys
-    apiKey: 'cole-sua-api-key-aqui',
+    apiKey: '$2a$10$gHdA8KAK/9HnnagDiMTlHeBUzNo9cWC0lR8EL0IaUpJg5ChpGiz/i',
     
     // Master Key (gerada junto com a API Key)
-    masterKey: 'cole-sua-master-key-aqui',
+    masterKey: '$2a$10$gHdA8KAK/9HnnagDiMTlHeBUzNo9cWC0lR8EL0IaUpJg5ChpGiz/i',
     
     // 🔴 ID do seu bin (após criar o bin)
     // Como encontrar: https://jsonbin.io/app/bins/[SEU-BIN-ID-AQUI]
-    binId: 'cole-seu-bin-id-aqui',
+    binId: '6999bfbbae596e708f3cfdfb',
     
     // URLs da API
     baseUrl: 'https://api.jsonbin.io/v3',
