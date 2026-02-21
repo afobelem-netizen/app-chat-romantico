@@ -4,410 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveChat - Login</title>
-    
-    <!-- Fonts e Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            animation: fadeIn 0.6s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .login-header i {
-            font-size: 60px;
-            color: #ff4b6e;
-            margin-bottom: 15px;
-            animation: heartbeat 1.5s ease infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.1); }
-            50% { transform: scale(1); }
-            75% { transform: scale(1.1); }
-        }
-
-        .login-header h1 {
-            font-size: 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .login-header p {
-            color: #666;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .input-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #eee;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-login:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .test-credentials {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .test-credentials p {
-            color: #666;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .test-credentials code {
-            background: #e9ecef;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: #495057;
-            font-size: 14px;
-            display: inline-block;
-            margin: 2px;
-        }
-
-        .message-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 500;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        .message-toast.success { background: linear-gradient(135deg, #4caf50, #45a049); }
-        .message-toast.error { background: linear-gradient(135deg, #f44336, #da190b); }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .global-loader {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.9);
-            z-index: 99999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .global-loader.active {
-            display: flex;
-        }
-
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #667eea, #764ba2); height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        h1 i { color: #ff4b6e; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 20px; }
+        button:hover { opacity: 0.9; }
+        .teste { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; text-align: center; }
+        .teste p { color: #666; margin-bottom: 5px; }
+        .teste code { background: #e0e0e0; padding: 5px 10px; border-radius: 3px; display: inline-block; margin: 2px; }
+        .error { color: red; text-align: center; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
-    <!-- Loader -->
-    <div class="global-loader" id="globalLoader">
-        <div class="loader-spinner"></div>
-    </div>
+    <div class="login-box">
+        <h1><i class="fas fa-heart"></i> LoveChat</h1>
+        
+        <div id="errorMsg" class="error">Erro no login. Tente novamente.</div>
+        
+        <input type="email" id="email" placeholder="E-mail" value="teste@email.com">
+        <input type="password" id="senha" placeholder="Senha" value="123456">
+        
+        <button onclick="fazerLogin()">Entrar</button>
 
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <i class="fas fa-heart"></i>
-                <h1>LoveChat</h1>
-                <p>Faça login para continuar</p>
-            </div>
-
-            <!-- Formulário de login -->
-            <form id="loginForm">
-                <div class="input-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" placeholder="Seu e-mail" value="teste@email.com" required>
-                </div>
-
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" placeholder="Sua senha" value="123456" required>
-                </div>
-
-                <button type="submit" class="btn-login" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-            </form>
-
-            <!-- Credenciais de teste -->
-            <div class="test-credentials">
-                <p><i class="fas fa-flask"></i> Conta de teste:</p>
-                <code>teste@email.com</code> 
-                <code>123456</code>
-                <p style="margin-top: 10px; font-size: 12px;">Use estas credenciais para testar</p>
-            </div>
+        <div class="teste">
+            <p>🔑 Conta de teste:</p>
+            <code>teste@email.com</code> / <code>123456</code>
         </div>
     </div>
 
-    <!-- Container para mensagens -->
-    <div id="toastContainer"></div>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <script>
-        // ========================================
-        // FUNÇÕES DE UTILIDADE
-        // ========================================
-        
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `message-toast ${type}`;
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-            container.appendChild(toast);
+        // Função de login SIMPLES e DIRETA
+        function fazerLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
             
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        function showLoading(show) {
-            document.getElementById('globalLoader').style.display = show ? 'flex' : 'none';
-        }
-
-        // ========================================
-        // FUNÇÃO PRINCIPAL DE LOGIN
-        // ========================================
-        
-        function fazerLogin(email, senha) {
             console.log('Tentando login com:', email, senha);
             
-            // Buscar usuários do localStorage
-            let users = [];
-            try {
-                const saved = localStorage.getItem('users');
-                if (saved) {
-                    users = JSON.parse(saved);
-                    console.log('Usuários carregados:', users);
-                } else {
-                    console.log('Nenhum usuário encontrado, criando padrão');
-                    // Criar usuário padrão se não existir
-                    users = [
-                        {
-                            id: 1,
-                            nome: 'Usuário Teste',
-                            email: 'teste@email.com',
-                            senha: '123456',
-                            foto: 'https://via.placeholder.com/150/667eea/ffffff?text=Teste',
-                            score: 0
-                        }
-                    ];
-                    localStorage.setItem('users', JSON.stringify(users));
-                }
-            } catch (e) {
-                console.error('Erro ao ler localStorage:', e);
-            }
-            
-            // Procurar usuário
-            const user = users.find(u => u.email === email && u.senha === senha);
-            console.log('Usuário encontrado:', user);
-            
-            return user;
-        }
-
-        // ========================================
-        // HANDLER DO FORMULÁRIO
-        // ========================================
-        
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('password').value;
-            
-            console.log('Formulário enviado:', email, senha);
-            
-            if (!email || !senha) {
-                showToast('Preencha todos os campos', 'error');
-                return;
-            }
-            
-            showLoading(true);
-            
-            // Simular delay de rede
-            setTimeout(() => {
-                try {
-                    const user = fazerLogin(email, senha);
-                    
-                    if (user) {
-                        console.log('Login bem-sucedido:', user);
-                        
-                        // Salvar usuário na sessão
-                        const userData = {
-                            id: user.id,
-                            nome: user.nome,
-                            email: user.email,
-                            foto: user.foto,
-                            score: user.score || 0
-                        };
-                        
-                        // SEMPRE salvar no localStorage para teste
-                        localStorage.setItem('currentUser', JSON.stringify(userData));
-                        
-                        showToast(`Bem-vindo(a), ${user.nome}!`, 'success');
-                        
-                        // Redirecionar para o chat
-                        setTimeout(() => {
-                            window.location.href = 'pages/chat.html';
-                        }, 1500);
-                        
-                    } else {
-                        console.log('Login falhou: credenciais inválidas');
-                        showToast('E-mail ou senha incorretos!', 'error');
-                    }
-                } catch (error) {
-                    console.error('Erro no login:', error);
-                    showToast('Erro ao fazer login', 'error');
-                } finally {
-                    showLoading(false);
-                }
-            }, 1000);
-        });
-
-        // ========================================
-        // INICIALIZAÇÃO
-        // ========================================
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Página de login carregada');
-            
-            // Verificar se já está logado
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                console.log('Usuário já logado, redirecionando...');
-                window.location.href = 'pages/chat.html';
-            }
-            
-            // Garantir que o usuário de teste existe
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            if (users.length === 0) {
-                users.push({
+            // ÚNICO usuário válido
+            if (email === 'teste@email.com' && senha === '123456') {
+                // Criar usuário no localStorage
+                const usuario = {
                     id: 1,
                     nome: 'Usuário Teste',
                     email: 'teste@email.com',
-                    senha: '123456',
-                    foto: 'https://via.placeholder.com/150/667eea/ffffff?text=Teste',
-                    score: 0
-                });
-                localStorage.setItem('users', JSON.stringify(users));
-                console.log('Usuário de teste criado');
+                    pontos: 0
+                };
+                
+                // SALVAR no localStorage
+                localStorage.setItem('usuario', JSON.stringify(usuario));
+                
+                // Verificar se salvou
+                console.log('Usuário salvo:', localStorage.getItem('usuario'));
+                
+                // REDIRECIONAR (usando setTimeout para garantir)
+                setTimeout(function() {
+                    window.location.href = 'chat.html';
+                }, 500);
+                
+            } else {
+                alert('E-mail ou senha incorretos! Use: teste@email.com / 123456');
             }
-        });
+        }
+        
+        // Verificar se já está logado
+        window.onload = function() {
+            const usuario = localStorage.getItem('usuario');
+            if (usuario) {
+                console.log('Usuário já logado, redirecionando...');
+                window.location.href = 'chat.html';
+            }
+        };
     </script>
 </body>
 </html>
