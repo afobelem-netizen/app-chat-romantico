@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LoveChat - Chat</title>
+    <title>LoveChat - Chat Romântico</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
             min-height: 100vh;
@@ -19,240 +20,1094 @@
             justify-content: center;
             padding: 20px;
         }
-        .chat-box {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+        .chat-container {
             width: 100%;
-            max-width: 600px;
-            height: 80vh;
+            max-width: 1200px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
             display: flex;
             flex-direction: column;
         }
-        .header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+        .profile-header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-        .user-info {
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ffd700;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            border: 3px solid white;
+        }
+
+        .profile-header h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .score-display {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .score-display i {
+            color: gold;
+            margin-right: 5px;
+        }
+
+        .menu-options {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 15px;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        .avatar {
+
+        .menu-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .menu-btn i {
+            width: 20px;
+        }
+
+        .user-status {
+            margin-top: auto;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        /* ===== CHAT PRINCIPAL ===== */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+
+        .chat-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chat-header h2 {
+            color: #333;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header h2 i {
+            color: #ff4b6e;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+        }
+
+        .partner-score {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* ===== ÁREA DE MENSAGENS ===== */
+        .messages-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 15px;
+            animation: fadeIn 0.3s;
+            word-wrap: break-word;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border: 1px solid #eee;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.system {
+            align-self: center;
+            background: rgba(0,0,0,0.05);
+            color: #666;
+            font-size: 12px;
+            font-style: italic;
+            max-width: 50%;
+            text-align: center;
+        }
+
+        .sender-name {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #667eea;
+        }
+
+        .message.sent .sender-name {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message img, .message video {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+
+        .message audio {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== ÁREA DE PONTUAÇÃO ===== */
+        .scoring-area {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .score-btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .score-btn.positive {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+        }
+
+        .score-btn.positive:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .score-btn.negative {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+
+        .score-btn.negative:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        /* ===== ÁREA DE INPUT ===== */
+        .message-input-area {
+            background: white;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
             width: 40px;
             height: 40px;
-            background: #ffd700;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            color: #333;
         }
-        .sair {
-            background: #f44336;
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
+
+        .action-btn:hover {
+            background: #f0f0f0;
+            color: #667eea;
+            transform: scale(1.1);
         }
-        .sair:hover {
-            background: #da190b;
-        }
-        .mensagens-area {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f5f5f5;
-        }
-        .mensagem {
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .input-area {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #eee;
-            border-radius: 0 0 10px 10px;
-        }
-        .input-wrapper {
+
+        .message-input-wrapper {
             display: flex;
             gap: 10px;
         }
-        input {
+
+        .message-input-wrapper input {
             flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 25px;
             font-size: 14px;
+            transition: all 0.3s;
         }
-        .enviar {
+
+        .message-input-wrapper input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .send-btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
         }
-        .enviar:hover {
-            opacity: 0.9;
+
+        .send-btn:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #ddd;
+        }
+
+        /* ===== LOADING ===== */
         .loading {
             text-align: center;
             color: #666;
             padding: 20px;
         }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-position {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .ranking-position.gold { background: gold; }
+        .ranking-position.silver { background: silver; }
+        .ranking-position.bronze { background: #cd7f32; }
+
+        .ranking-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .ranking-name {
+            flex: 1;
+        }
+
+        .ranking-score {
+            background: #4caf50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: 95vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                align-items: center;
+                padding: 10px;
+            }
+
+            .profile-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 0;
+                border: none;
+            }
+
+            .profile-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+                margin: 0;
+            }
+
+            .menu-options {
+                flex-direction: row;
+                margin: 0 0 0 auto;
+            }
+
+            .user-status {
+                display: none;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+        }
     </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="chat-box">
-        <div class="header">
-            <div class="user-info">
-                <div class="avatar" id="avatar">?</div>
-                <span id="nomeUsuario">Carregando...</span>
+    <div class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="profile-header">
+                <div class="profile-avatar" id="avatar">?</div>
+                <div>
+                    <h3 id="userName">Carregando...</h3>
+                    <div class="score-display">
+                        <i class="fas fa-star"></i>
+                        <span id="userScore">0</span> pontos
+                    </div>
+                </div>
             </div>
-            <button class="sair" onclick="sair()">Sair</button>
+
+            <div class="menu-options">
+                <button class="menu-btn" onclick="showProfile()">
+                    <i class="fas fa-user"></i>
+                    <span>Meu Perfil</span>
+                </button>
+                <button class="menu-btn" onclick="showRanking()">
+                    <i class="fas fa-trophy"></i>
+                    <span>Ranking</span>
+                </button>
+                <button class="menu-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+
+            <div class="user-status">
+                <div class="online-indicator"></div>
+                <span>Online</span>
+            </div>
         </div>
 
-        <div class="mensagens-area" id="mensagensArea">
-            <div class="loading">Bem-vindo ao LoveChat! 💕</div>
-        </div>
+        <!-- Chat Principal -->
+        <div class="chat-main">
+            <div class="chat-header">
+                <h2>
+                    <i class="fas fa-heart"></i>
+                    Conversa Romântica
+                </h2>
+                <div class="partner-score" id="totalScore">
+                    Total: 0 pts
+                </div>
+            </div>
 
-        <div class="input-area">
-            <div class="input-wrapper">
-                <input type="text" id="mensagemInput" placeholder="Digite sua mensagem...">
-                <button class="enviar" onclick="enviarMensagem()">Enviar</button>
+            <!-- Área de Mensagens -->
+            <div class="messages-area" id="messagesArea">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando mensagens...</p>
+                </div>
+            </div>
+
+            <!-- Área de Pontuação -->
+            <div class="scoring-area">
+                <button class="score-btn positive" onclick="addPoints(1, 'Carinho')">
+                    <i class="fas fa-smile"></i> +1
+                </button>
+                <button class="score-btn positive" onclick="addPoints(5, 'Amor')">
+                    <i class="fas fa-heart"></i> +5
+                </button>
+                <button class="score-btn positive" onclick="addPoints(10, 'Especial')">
+                    <i class="fas fa-crown"></i> +10
+                </button>
+                <button class="score-btn negative" onclick="addPoints(-1, 'Esquecimento')">
+                    <i class="fas fa-frown"></i> -1
+                </button>
+                <button class="score-btn negative" onclick="addPoints(-3, 'Atraso')">
+                    <i class="fas fa-angry"></i> -3
+                </button>
+                <button class="score-btn negative" onclick="addPoints(-5, 'Falha')">
+                    <i class="fas fa-skull"></i> -5
+                </button>
+            </div>
+
+            <!-- Área de Input -->
+            <div class="message-input-area">
+                <div class="input-actions">
+                    <button class="action-btn" onclick="sendImage()" title="Enviar imagem">
+                        <i class="fas fa-image"></i>
+                    </button>
+                    <button class="action-btn" onclick="sendVideo()" title="Enviar vídeo">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="action-btn" onclick="sendAudio()" title="Enviar áudio">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+                <div class="message-input-wrapper">
+                    <input type="text" id="messageInput" placeholder="Digite sua mensagem..." autocomplete="off">
+                    <button class="send-btn" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal de Ranking -->
+    <div class="modal" id="rankingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-trophy"></i> Ranking do Casal</h2>
+                <span class="modal-close" onclick="closeRankingModal()">&times;</span>
+            </div>
+            <div id="rankingList" class="ranking-list">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando ranking...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input de arquivo oculto -->
+    <input type="file" id="fileInput" style="display: none;">
+
     <script>
         // ========================================
-        // CARREGAR USUÁRIO
+        // CONFIGURAÇÕES DO JSONBIN.IO
         // ========================================
-        function carregarUsuario() {
-            console.log('Carregando usuário...');
-            const dados = localStorage.getItem('usuario');
-            
-            if (!dados) {
-                console.log('Nenhum usuário encontrado, redirecionando...');
-                window.location.href = '../login.html';
+        const CONFIG = {
+            API_KEY: '$2a$10$gHdA8KAK/9HnnagDiMTlHeBUzNo9cWC0lR8EL0IaUpJg5ChpGiz/i',
+            BIN_ID: '6999bfbbae596e708f3cfdfb',
+            BASE_URL: 'https://api.jsonbin.io/v3'
+        };
+
+        const API_HEADERS = {
+            'Content-Type': 'application/json',
+            'X-Master-Key': CONFIG.API_KEY
+        };
+
+        // ========================================
+        // VARIÁVEIS GLOBAIS
+        // ========================================
+        let currentUser = null;
+        let messages = [];
+        let pollingInterval = null;
+
+        // ========================================
+        // FUNÇÕES DA API
+        // ========================================
+        
+        async function getData() {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/b/${CONFIG.BIN_ID}/latest`, {
+                    headers: API_HEADERS
+                });
+                if (!response.ok) throw new Error('Erro ao buscar dados');
+                const data = await response.json();
+                return data.record;
+            } catch (error) {
+                console.error('Erro:', error);
                 return null;
+            }
+        }
+
+        async function saveData(data) {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/b/${CONFIG.BIN_ID}`, {
+                    method: 'PUT',
+                    headers: API_HEADERS,
+                    body: JSON.stringify(data)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                return false;
+            }
+        }
+
+        async function getUsers() {
+            const data = await getData();
+            return data?.users || [];
+        }
+
+        async function saveUser(user) {
+            const data = await getData();
+            if (!data) return false;
+            
+            const index = data.users.findIndex(u => u.id === user.id);
+            if (index >= 0) {
+                data.users[index] = user;
+            }
+            
+            return await saveData(data);
+        }
+
+        async function getMessages() {
+            const data = await getData();
+            return data?.messages || [];
+        }
+
+        async function addMessage(message) {
+            const data = await getData();
+            if (!data) return false;
+            
+            message.id = Date.now();
+            message.timestamp = new Date().toISOString();
+            data.messages.push(message);
+            
+            return await saveData(data);
+        }
+
+        async function addScore(score) {
+            const data = await getData();
+            if (!data) return false;
+            
+            score.id = Date.now();
+            score.timestamp = new Date().toISOString();
+            data.scores = data.scores || [];
+            data.scores.push(score);
+            
+            // Atualizar score do usuário
+            const user = data.users.find(u => u.id === score.userId);
+            if (user) {
+                user.score = (user.score || 0) + score.points;
+            }
+            
+            return await saveData(data);
+        }
+
+        // ========================================
+        // FUNÇÕES DO CHAT
+        // ========================================
+        
+        function carregarUsuario() {
+            const dados = localStorage.getItem('usuario');
+            if (!dados) {
+                window.location.href = '../login.html';
+                return false;
             }
             
             try {
-                const usuario = JSON.parse(dados);
-                console.log('Usuário carregado:', usuario);
-                
-                document.getElementById('nomeUsuario').textContent = usuario.nome;
-                document.getElementById('avatar').textContent = usuario.nome.charAt(0).toUpperCase();
-                
-                return usuario;
+                currentUser = JSON.parse(dados);
+                document.getElementById('userName').textContent = currentUser.nome;
+                document.getElementById('userScore').textContent = currentUser.score || 0;
+                document.getElementById('avatar').textContent = currentUser.nome.charAt(0).toUpperCase();
+                return true;
             } catch (e) {
                 console.error('Erro ao carregar usuário:', e);
                 window.location.href = '../login.html';
-                return null;
+                return false;
             }
         }
 
-        // ========================================
-        // MENSAGENS
-        // ========================================
-        let mensagens = [];
+        async function carregarMensagens() {
+            try {
+                messages = await getMessages();
+                atualizarMensagens();
+            } catch (error) {
+                console.error('Erro ao carregar mensagens:', error);
+            }
+        }
 
-        function carregarMensagens() {
-            const dados = localStorage.getItem('mensagens');
-            if (dados) {
-                try {
-                    mensagens = JSON.parse(dados);
-                } catch (e) {
-                    mensagens = [];
+        function atualizarMensagens() {
+            const area = document.getElementById('messagesArea');
+            if (!area) return;
+            
+            area.innerHTML = '';
+            
+            if (messages.length === 0) {
+                area.innerHTML = '<div class="empty-state"><i class="fas fa-heart"></i><p>Nenhuma mensagem ainda. Envie a primeira!</p></div>';
+                return;
+            }
+            
+            messages.forEach(msg => {
+                const isOwn = msg.userId === currentUser?.id;
+                const isSystem = msg.userId === 'system';
+                
+                const div = document.createElement('div');
+                div.className = `message ${isSystem ? 'system' : (isOwn ? 'sent' : 'received')}`;
+                
+                const time = new Date(msg.timestamp).toLocaleTimeString('pt-BR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let content = '';
+                switch (msg.type) {
+                    case 'text':
+                        content = `<p>${escapeHtml(msg.content)}</p>`;
+                        break;
+                    case 'image':
+                        content = `<img src="${msg.content}" alt="Imagem" style="max-width: 100%; border-radius: 10px;">`;
+                        break;
+                    case 'video':
+                        content = `<video controls src="${msg.content}" style="max-width: 100%; border-radius: 10px;"></video>`;
+                        break;
+                    case 'audio':
+                        content = `<audio controls src="${msg.content}" style="width: 100%;"></audio>`;
+                        break;
                 }
-            }
-        }
-
-        function salvarMensagens() {
-            localStorage.setItem('mensagens', JSON.stringify(mensagens));
-        }
-
-        function enviarMensagem() {
-            const input = document.getElementById('mensagemInput');
-            const texto = input.value.trim();
+                
+                div.innerHTML = `
+                    ${!isOwn && !isSystem ? `<div class="sender-name">${escapeHtml(msg.userName)}</div>` : ''}
+                    ${content}
+                    <div class="message-time">${time}</div>
+                `;
+                
+                area.appendChild(div);
+            });
             
-            if (!texto) return;
-            
-            const usuario = JSON.parse(localStorage.getItem('usuario'));
-            
-            const mensagem = {
-                texto: texto,
-                usuario: usuario.nome,
-                hora: new Date().toLocaleTimeString()
-            };
-            
-            mensagens.push(mensagem);
-            salvarMensagens();
-            
-            // Mostrar na tela
-            const area = document.getElementById('mensagensArea');
-            const div = document.createElement('div');
-            div.className = 'mensagem';
-            div.innerHTML = `
-                <strong>${mensagem.usuario}:</strong> ${mensagem.texto}
-                <br><small>${mensagem.hora}</small>
-            `;
-            area.appendChild(div);
-            
-            input.value = '';
             area.scrollTop = area.scrollHeight;
         }
 
-        function sair() {
-            localStorage.removeItem('usuario');
-            window.location.href = '../login.html';
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            const message = {
+                userId: currentUser.id,
+                userName: currentUser.nome,
+                userPhoto: currentUser.foto,
+                type: 'text',
+                content: text
+            };
+            
+            await addMessage(message);
+            messages.push(message);
+            atualizarMensagens();
+            input.value = '';
+        }
+
+        async function addPoints(points, reason) {
+            const score = {
+                userId: currentUser.id,
+                points: points,
+                reason: reason
+            };
+            
+            await addScore(score);
+            
+            // Atualizar score local
+            currentUser.score = (currentUser.score || 0) + points;
+            localStorage.setItem('usuario', JSON.stringify(currentUser));
+            document.getElementById('userScore').textContent = currentUser.score;
+            
+            // Mensagem de sistema
+            const systemMessage = {
+                userId: 'system',
+                userName: 'Sistema',
+                type: 'text',
+                content: `${points > 0 ? '🎁' : '⚠️'} ${currentUser.nome} ${points > 0 ? 'ganhou' : 'perdeu'} ${Math.abs(points)} pontos! ${reason}`
+            };
+            
+            await addMessage(systemMessage);
+            messages.push(systemMessage);
+            atualizarMensagens();
+            
+            // Atualizar total
+            atualizarTotalScore();
+        }
+
+        async function atualizarTotalScore() {
+            const users = await getUsers();
+            const total = users.reduce((acc, u) => acc + (u.score || 0), 0);
+            document.getElementById('totalScore').textContent = `Total: ${total} pts`;
+        }
+
+        // ========================================
+        // FUNÇÕES DE MÍDIA
+        // ========================================
+        
+        function sendImage() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'image',
+                        content: event.target.result
+                    };
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function sendVideo() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'video/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'video',
+                        content: event.target.result
+                    };
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function sendAudio() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'audio/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'audio',
+                        content: event.target.result
+                    };
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        // ========================================
+        // FUNÇÕES DE INTERFACE
+        // ========================================
+        
+        function showProfile() {
+            alert(`Perfil do usuário:\n\nNome: ${currentUser.nome}\nEmail: ${currentUser.email}\nPontos: ${currentUser.score}`);
+        }
+
+        async function showRanking() {
+            const modal = document.getElementById('rankingModal');
+            const list = document.getElementById('rankingList');
+            
+            modal.classList.add('active');
+            
+            try {
+                const users = await getUsers();
+                const sorted = users.sort((a, b) => (b.score || 0) - (a.score || 0));
+                
+                list.innerHTML = sorted.map((user, index) => `
+                    <div class="ranking-item">
+                        <div class="ranking-position ${index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : ''}">
+                            ${index + 1}
+                        </div>
+                        <img src="${user.foto || 'https://via.placeholder.com/40'}" alt="${user.nome}" class="ranking-avatar">
+                        <span class="ranking-name">${user.nome}</span>
+                        <span class="ranking-score">${user.score || 0} pts</span>
+                    </div>
+                `).join('');
+            } catch (error) {
+                list.innerHTML = '<p style="color: red; text-align: center;">Erro ao carregar ranking</p>';
+            }
+        }
+
+        function closeRankingModal() {
+            document.getElementById('rankingModal').classList.remove('active');
+        }
+
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                localStorage.removeItem('usuario');
+                window.location.href = '../login.html';
+            }
+        }
+
+        // ========================================
+        // POLLING
+        // ========================================
+        
+        function startPolling() {
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            pollingInterval = setInterval(async () => {
+                const novas = await getMessages();
+                if (novas.length > messages.length) {
+                    messages = novas;
+                    atualizarMensagens();
+                }
+                await atualizarTotalScore();
+            }, 3000);
         }
 
         // ========================================
         // INICIALIZAÇÃO
         // ========================================
-        window.onload = function() {
-            console.log('=== CHAT CARREGADO ===');
+        
+        window.onload = async function() {
+            console.log('🚀 Chat carregado');
             
-            const usuario = carregarUsuario();
-            if (!usuario) return;
+            if (!carregarUsuario()) return;
             
-            carregarMensagens();
-            
-            // Mostrar mensagens existentes
-            const area = document.getElementById('mensagensArea');
-            area.innerHTML = '';
-            
-            if (mensagens.length === 0) {
-                area.innerHTML = '<div class="loading">Nenhuma mensagem ainda. Envie a primeira!</div>';
-            } else {
-                mensagens.forEach(msg => {
-                    const div = document.createElement('div');
-                    div.className = 'mensagem';
-                    div.innerHTML = `
-                        <strong>${msg.usuario}:</strong> ${msg.texto}
-                        <br><small>${msg.hora}</small>
-                    `;
-                    area.appendChild(div);
-                });
-            }
+            await carregarMensagens();
+            await atualizarTotalScore();
+            startPolling();
             
             // Enter para enviar
-            document.getElementById('mensagemInput').addEventListener('keypress', function(e) {
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    enviarMensagem();
+                    sendMessage();
+                }
+            });
+            
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeRankingModal();
                 }
             });
         };
