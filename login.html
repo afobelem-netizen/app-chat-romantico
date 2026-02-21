@@ -4,83 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveChat - Login</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: linear-gradient(135deg, #667eea, #764ba2); height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 90%; max-width: 400px; }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        h1 i { color: #ff4b6e; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 20px; }
-        button:hover { opacity: 0.9; }
-        .teste { margin-top: 20px; padding: 15px; background: #f5f5f5; border-radius: 5px; text-align: center; }
-        .teste p { color: #666; margin-bottom: 5px; }
-        .teste code { background: #e0e0e0; padding: 5px 10px; border-radius: 3px; display: inline-block; margin: 2px; }
-        .error { color: red; text-align: center; margin-top: 10px; display: none; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="login-box">
-        <h1><i class="fas fa-heart"></i> LoveChat</h1>
-        
-        <div id="errorMsg" class="error">Erro no login. Tente novamente.</div>
-        
-        <input type="email" id="email" placeholder="E-mail" value="teste@email.com">
-        <input type="password" id="senha" placeholder="Senha" value="123456">
-        
-        <button onclick="fazerLogin()">Entrar</button>
+    <div class="login-container">
+        <div class="login-card">
+            <h1><i class="fas fa-heart"></i> LoveChat</h1>
+            
+            <div id="loginForm">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="E-mail" value="teste@email.com">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="senha" placeholder="Senha" value="123456">
+                </div>
+                <button onclick="handleLogin()" class="btn-login">Entrar</button>
+            </div>
 
-        <div class="teste">
-            <p>🔑 Conta de teste:</p>
-            <code>teste@email.com</code> / <code>123456</code>
+            <div id="registerForm" style="display: none;">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="regNome" placeholder="Nome">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="E-mail">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regSenha" placeholder="Senha (mínimo 6 caracteres)">
+                </div>
+                <button onclick="handleRegister()" class="btn-login">Criar Conta</button>
+            </div>
+
+            <div class="test-credentials">
+                <p>Conta de teste:</p>
+                <code>teste@email.com</code> / <code>123456</code>
+            </div>
         </div>
     </div>
 
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
     <script>
-        // Função de login SIMPLES e DIRETA
-        function fazerLogin() {
+        // Verificar se é para mostrar registro
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('register') === 'true') {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        async function handleLogin() {
             const email = document.getElementById('email').value;
             const senha = document.getElementById('senha').value;
             
-            console.log('Tentando login com:', email, senha);
+            const result = await AuthService.login(email, senha, true);
             
-            // ÚNICO usuário válido
-            if (email === 'teste@email.com' && senha === '123456') {
-                // Criar usuário no localStorage
-                const usuario = {
-                    id: 1,
-                    nome: 'Usuário Teste',
-                    email: 'teste@email.com',
-                    pontos: 0
-                };
-                
-                // SALVAR no localStorage
-                localStorage.setItem('usuario', JSON.stringify(usuario));
-                
-                // Verificar se salvou
-                console.log('Usuário salvo:', localStorage.getItem('usuario'));
-                
-                // REDIRECIONAR (usando setTimeout para garantir)
-                setTimeout(function() {
-                    window.location.href = 'chat.html';
-                }, 500);
-                
+            if (result.success) {
+                alert('Login realizado com sucesso!');
+                window.location.href = 'pages/chat.html';
             } else {
-                alert('E-mail ou senha incorretos! Use: teste@email.com / 123456');
+                alert(result.message);
             }
         }
-        
-        // Verificar se já está logado
-        window.onload = function() {
-            const usuario = localStorage.getItem('usuario');
-            if (usuario) {
-                console.log('Usuário já logado, redirecionando...');
-                window.location.href = 'chat.html';
+
+        async function handleRegister() {
+            const nome = document.getElementById('regNome').value;
+            const email = document.getElementById('regEmail').value;
+            const senha = document.getElementById('regSenha').value;
+            
+            if (senha.length < 6) {
+                alert('Senha deve ter pelo menos 6 caracteres');
+                return;
             }
-        };
+            
+            const result = await AuthService.register(nome, email, senha);
+            alert(result.message);
+            
+            if (result.success) {
+                window.location.href = 'login.html';
+            }
+        }
     </script>
 </body>
 </html>
