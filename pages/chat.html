@@ -4,172 +4,258 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LoveChat - Chat</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .chat-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+        .sair {
+            background: #f44336;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .sair:hover {
+            background: #da190b;
+        }
+        .mensagens-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        .mensagem {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            border-radius: 0 0 10px 10px;
+        }
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .enviar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .enviar:hover {
+            opacity: 0.9;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
-    <div class="chat-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="profile-header">
-                <img src="https://via.placeholder.com/80" alt="Profile" id="profilePhoto">
-                <h3 id="userName">Carregando...</h3>
-                <div class="score-display">
-                    <i class="fas fa-star"></i>
-                    <span id="userScore">0</span> pontos
-                </div>
+    <div class="chat-box">
+        <div class="header">
+            <div class="user-info">
+                <div class="avatar" id="avatar">?</div>
+                <span id="nomeUsuario">Carregando...</span>
             </div>
-            <div class="menu-options">
-                <button class="menu-btn" onclick="showProfile()">
-                    <i class="fas fa-user"></i> Perfil
-                </button>
-                <button class="menu-btn" onclick="showRanking()">
-                    <i class="fas fa-trophy"></i> Ranking
-                </button>
-                <button class="menu-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
+            <button class="sair" onclick="sair()">Sair</button>
         </div>
 
-        <!-- Chat Principal -->
-        <div class="chat-main">
-            <div class="chat-header">
-                <h2><i class="fas fa-heart"></i> Conversa Romântica</h2>
-            </div>
+        <div class="mensagens-area" id="mensagensArea">
+            <div class="loading">Bem-vindo ao LoveChat! 💕</div>
+        </div>
 
-            <div class="messages-area" id="messagesArea"></div>
-
-            <!-- Pontuação -->
-            <div class="scoring-area">
-                <button class="presente-btn" onclick="addPoints(1, 'Carinho')">😊 +1</button>
-                <button class="presente-btn" onclick="addPoints(5, 'Amor')">❤️ +5</button>
-                <button class="presente-btn" onclick="addPoints(10, 'Especial')">👑 +10</button>
-                <button class="penalidade-btn" onclick="addPoints(-1, 'Esquecimento')">😞 -1</button>
-                <button class="penalidade-btn" onclick="addPoints(-3, 'Atraso')">😠 -3</button>
-                <button class="penalidade-btn" onclick="addPoints(-5, 'Falha')">💀 -5</button>
-            </div>
-
-            <!-- Input -->
-            <div class="message-input-area">
-                <div class="input-actions">
-                    <button class="action-btn" onclick="sendImage()" title="Enviar imagem">
-                        <i class="fas fa-image"></i>
-                    </button>
-                    <button class="action-btn" onclick="sendVideo()" title="Enviar vídeo">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button class="action-btn" onclick="sendAudio()" title="Enviar áudio">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-                <div class="message-input-wrapper">
-                    <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
-                    <button class="send-btn" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" id="mensagemInput" placeholder="Digite sua mensagem...">
+                <button class="enviar" onclick="enviarMensagem()">Enviar</button>
             </div>
         </div>
     </div>
 
-    <input type="file" id="fileInput" style="display: none;">
-
-    <script src="../js/config.js"></script>
-    <script src="../js/app.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/chat.js"></script>
-    
     <script>
-        let currentUser = null;
-
-        // Inicializar
-        document.addEventListener('DOMContentLoaded', async () => {
-            currentUser = AuthService.checkAuth();
-            if (!currentUser) return;
+        // ========================================
+        // CARREGAR USUÁRIO
+        // ========================================
+        function carregarUsuario() {
+            console.log('Carregando usuário...');
+            const dados = localStorage.getItem('usuario');
             
-            document.getElementById('userName').textContent = currentUser.nome;
-            document.getElementById('userScore').textContent = currentUser.score || 0;
-            document.getElementById('profilePhoto').src = currentUser.foto;
+            if (!dados) {
+                console.log('Nenhum usuário encontrado, redirecionando...');
+                window.location.href = '../login.html';
+                return null;
+            }
             
-            await ChatService.init();
-        });
+            try {
+                const usuario = JSON.parse(dados);
+                console.log('Usuário carregado:', usuario);
+                
+                document.getElementById('nomeUsuario').textContent = usuario.nome;
+                document.getElementById('avatar').textContent = usuario.nome.charAt(0).toUpperCase();
+                
+                return usuario;
+            } catch (e) {
+                console.error('Erro ao carregar usuário:', e);
+                window.location.href = '../login.html';
+                return null;
+            }
+        }
 
-        // Enviar mensagem de texto
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            await ChatService.sendText(input.value);
+        // ========================================
+        // MENSAGENS
+        // ========================================
+        let mensagens = [];
+
+        function carregarMensagens() {
+            const dados = localStorage.getItem('mensagens');
+            if (dados) {
+                try {
+                    mensagens = JSON.parse(dados);
+                } catch (e) {
+                    mensagens = [];
+                }
+            }
+        }
+
+        function salvarMensagens() {
+            localStorage.setItem('mensagens', JSON.stringify(mensagens));
+        }
+
+        function enviarMensagem() {
+            const input = document.getElementById('mensagemInput');
+            const texto = input.value.trim();
+            
+            if (!texto) return;
+            
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            
+            const mensagem = {
+                texto: texto,
+                usuario: usuario.nome,
+                hora: new Date().toLocaleTimeString()
+            };
+            
+            mensagens.push(mensagem);
+            salvarMensagens();
+            
+            // Mostrar na tela
+            const area = document.getElementById('mensagensArea');
+            const div = document.createElement('div');
+            div.className = 'mensagem';
+            div.innerHTML = `
+                <strong>${mensagem.usuario}:</strong> ${mensagem.texto}
+                <br><small>${mensagem.hora}</small>
+            `;
+            area.appendChild(div);
+            
             input.value = '';
+            area.scrollTop = area.scrollHeight;
         }
 
-        // Adicionar pontos
-        async function addPoints(points, reason) {
-            await ChatService.addPoints(points, reason);
-        }
-
-        // Enviar imagem
-        function sendImage() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'image/*';
-            input.onchange = async (e) => {
-                if (e.target.files[0]) {
-                    await ChatService.sendFile(e.target.files[0], 'image');
-                }
-            };
-            input.click();
-        }
-
-        // Enviar vídeo
-        function sendVideo() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'video/*';
-            input.onchange = async (e) => {
-                if (e.target.files[0]) {
-                    await ChatService.sendFile(e.target.files[0], 'video');
-                }
-            };
-            input.click();
-        }
-
-        // Enviar áudio
-        function sendAudio() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'audio/*';
-            input.onchange = async (e) => {
-                if (e.target.files[0]) {
-                    await ChatService.sendFile(e.target.files[0], 'audio');
-                }
-            };
-            input.click();
-        }
-
-        // Logout
-        async function logout() {
-            await AuthService.logout();
+        function sair() {
+            localStorage.removeItem('usuario');
             window.location.href = '../login.html';
         }
 
-        // Perfil
-        function showProfile() {
-            const user = AuthService.getCurrentUser();
-            alert(`Perfil:\nNome: ${user.nome}\nEmail: ${user.email}\nPontos: ${user.score}`);
-        }
-
-        // Ranking
-        async function showRanking() {
-            const ranking = await ApiService.getRanking();
-            let msg = '🏆 RANKING 🏆\n\n';
-            ranking.forEach((u, i) => {
-                msg += `${i+1}. ${u.nome} - ${u.score || 0} pontos\n`;
-            });
-            alert(msg);
-        }
-
-        // Enter para enviar
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
+        // ========================================
+        // INICIALIZAÇÃO
+        // ========================================
+        window.onload = function() {
+            console.log('=== CHAT CARREGADO ===');
+            
+            const usuario = carregarUsuario();
+            if (!usuario) return;
+            
+            carregarMensagens();
+            
+            // Mostrar mensagens existentes
+            const area = document.getElementById('mensagensArea');
+            area.innerHTML = '';
+            
+            if (mensagens.length === 0) {
+                area.innerHTML = '<div class="loading">Nenhuma mensagem ainda. Envie a primeira!</div>';
+            } else {
+                mensagens.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'mensagem';
+                    div.innerHTML = `
+                        <strong>${msg.usuario}:</strong> ${msg.texto}
+                        <br><small>${msg.hora}</small>
+                    `;
+                    area.appendChild(div);
+                });
             }
-        });
+            
+            // Enter para enviar
+            document.getElementById('mensagemInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    enviarMensagem();
+                }
+            });
+        };
     </script>
 </body>
 </html>
