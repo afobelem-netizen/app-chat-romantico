@@ -5,26 +5,74 @@
  */
 
 // ========================================
+// CONFIGURAÇÕES DO JSONBIN.IO
+// ========================================
+const JSONBIN_CONFIG = {
+    // 🔴 SUBSTITUA PELOS SEUS VALORES REAIS
+    // API Key obtida em: https://jsonbin.io/api-keys
+    apiKey: 'cole-sua-api-key-aqui',
+    
+    // Master Key (gerada junto com a API Key)
+    masterKey: 'cole-sua-master-key-aqui',
+    
+    // 🔴 ID do seu bin (após criar o bin)
+    // Como encontrar: https://jsonbin.io/app/bins/[SEU-BIN-ID-AQUI]
+    binId: 'cole-seu-bin-id-aqui',
+    
+    // URLs da API
+    baseUrl: 'https://api.jsonbin.io/v3',
+    
+    // Endpoints da API
+    endpoints: {
+        create: '/b',
+        get: '/b/{binId}/latest',
+        update: '/b/{binId}',
+        delete: '/b/{binId}',
+        version: '/b/{binId}/versions'
+    },
+    
+    // Headers padrão para requisições
+    headers: {
+        'Content-Type': 'application/json',
+        'X-Bin-Meta': 'false' // Não incluir metadados na resposta
+    },
+    
+    // Configurações de rate limiting
+    rateLimit: {
+        maxRequestsPerMinute: 20,
+        retryAfter: 60000 // 1 minuto em ms
+    },
+    
+    // IDs dos bins (se usar múltiplos bins)
+    bins: {
+        users: null,      // ID do bin de usuários (se separado)
+        messages: null,   // ID do bin de mensagens (se separado)
+        scores: null,     // ID do bin de pontuações (se separado)
+        config: null      // ID do bin de configurações (se separado)
+    }
+};
+
+// ========================================
 // CONFIGURAÇÕES DO AMBIENTE
 // ========================================
 const ENV = {
     // Ambiente atual: 'development', 'production', 'testing'
     current: 'development',
     
-    // URLs da aplicação
+    // URLs da aplicação por ambiente
     urls: {
         development: {
-            api: 'http://localhost:3000',
+            api: JSONBIN_CONFIG.baseUrl,
             frontend: 'http://localhost:5500',
-            websocket: 'ws://localhost:3000'
+            websocket: 'ws://localhost:5500'
         },
         testing: {
-            api: 'https://test-api.jsonbin.io/v3',
+            api: JSONBIN_CONFIG.baseUrl,
             frontend: 'https://test.lovechat.app',
             websocket: 'wss://test.lovechat.app'
         },
         production: {
-            api: 'https://api.jsonbin.io/v3',
+            api: JSONBIN_CONFIG.baseUrl,
             frontend: 'https://lovechat.app',
             websocket: 'wss://lovechat.app'
         }
@@ -54,45 +102,6 @@ const ENV = {
 };
 
 // ========================================
-// CONFIGURAÇÕES DO JSONBIN.IO
-// ========================================
-const JSONBIN_CONFIG = {
-    // API Keys (substitua pelos seus valores)
-    apiKey: '$2a$10$sChh0QX9hJpZnYvHxh7ZQO3X9pZnYvHxh7ZQO3X9pZnYvHxh7ZQO', // EXEMPLO - Substitua pela sua
-    masterKey: '$2a$10$sChh0QX9hJpZnYvHxh7ZQO3X9pZnYvHxh7ZQO3X9pZnYvHxh7ZQO', // EXEMPLO - Substitua pela sua
-    
-    // IDs dos bins (criados automaticamente na primeira execução)
-    bins: {
-        users: null,      // ID do bin de usuários
-        messages: null,   // ID do bin de mensagens
-        scores: null,     // ID do bin de pontuações
-        config: null      // ID do bin de configurações
-    },
-    
-    // URLs da API
-    baseUrl: 'https://api.jsonbin.io/v3',
-    endpoints: {
-        create: '/b',
-        get: '/b/{binId}',
-        update: '/b/{binId}',
-        delete: '/b/{binId}',
-        version: '/b/{binId}/versions'
-    },
-    
-    // Headers padrão
-    headers: {
-        'Content-Type': 'application/json',
-        'X-Bin-Meta': false
-    },
-    
-    // Configurações de rate limiting
-    rateLimit: {
-        maxRequestsPerMinute: 20,
-        retryAfter: 60000 // 1 minuto
-    }
-};
-
-// ========================================
 // CONFIGURAÇÕES DO BANCO DE DADOS LOCAL
 // ========================================
 const DATABASE_CONFIG = {
@@ -106,7 +115,7 @@ const DATABASE_CONFIG = {
         settings: 'lovechat_settings'
     },
     
-    // Estrutura inicial do banco
+    // Estrutura inicial do banco (para primeiro uso)
     initialData: {
         users: [
             {
@@ -185,7 +194,7 @@ const APP_CONFIG = {
     
     // URLs
     website: 'https://lovechat.app',
-    repository: 'https://github.com/lovechat/app',
+    repository: 'https://github.com/seu-usuario/lovechat',
     docs: 'https://docs.lovechat.app',
     
     // Features habilitadas
@@ -198,7 +207,7 @@ const APP_CONFIG = {
         enableDarkMode: true,
         enableOfflineMode: true,
         enableVoiceMessages: true,
-        enableVideoCalls: false, // Futura implementação
+        enableVideoCalls: false,
         enableStickers: true
     },
     
@@ -216,13 +225,14 @@ const APP_CONFIG = {
         sessionTimeout: 30 * 60 * 1000 // 30 minutos
     },
     
-    // Intervalos de tempo
+    // Intervalos de tempo (em ms)
     intervals: {
-        messagePolling: 3000, // 3 segundos
-        heartbeat: 30000, // 30 segundos
-        typingTimeout: 3000, // 3 segundos
+        messagePolling: 3000,      // 3 segundos
+        heartbeat: 30000,          // 30 segundos
+        typingTimeout: 3000,       // 3 segundos
         notificationTimeout: 5000, // 5 segundos
-        sessionCheck: 60000 // 1 minuto
+        sessionCheck: 60000,       // 1 minuto
+        backupInterval: 3600000    // 1 hora
     },
     
     // Temas disponíveis
@@ -409,7 +419,7 @@ const NOTIFICATION_CONFIG = {
         }
     },
     
-    // Sons disponíveis
+    // Sons disponíveis (URLs)
     sounds: {
         message: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
         score: 'https://www.soundjay.com/misc/sounds/chime-1.mp3',
@@ -437,7 +447,8 @@ const MESSAGES = {
             logout: 'Até logo!',
             messageSent: 'Mensagem enviada',
             pointsAdded: 'Pontos adicionados!',
-            profileUpdated: 'Perfil atualizado!'
+            profileUpdated: 'Perfil atualizado!',
+            settingsSaved: 'Configurações salvas!'
         },
         
         // Mensagens de erro
@@ -447,21 +458,25 @@ const MESSAGES = {
             network: 'Erro de conexão',
             fileTooBig: 'Arquivo muito grande',
             invalidFile: 'Tipo de arquivo não suportado',
-            sessionExpired: 'Sessão expirada'
+            sessionExpired: 'Sessão expirada',
+            unauthorized: 'Não autorizado',
+            notFound: 'Não encontrado'
         },
         
         // Mensagens de aviso
         warning: {
             offline: 'Você está offline',
             typing: 'Digitando...',
-            unsaved: 'Alterações não salvas'
+            unsaved: 'Alterações não salvas',
+            loading: 'Carregando...'
         },
         
         // Confirmações
         confirm: {
             logout: 'Deseja realmente sair?',
             deleteMessage: 'Excluir mensagem?',
-            clearChat: 'Limpar conversa?'
+            clearChat: 'Limpar conversa?',
+            deleteAccount: 'Tem certeza? Esta ação não pode ser desfeita.'
         }
     },
     
@@ -472,7 +487,8 @@ const MESSAGES = {
             logout: 'Goodbye!',
             messageSent: 'Message sent',
             pointsAdded: 'Points added!',
-            profileUpdated: 'Profile updated!'
+            profileUpdated: 'Profile updated!',
+            settingsSaved: 'Settings saved!'
         },
         error: {
             login: 'Invalid email or password',
@@ -480,49 +496,22 @@ const MESSAGES = {
             network: 'Connection error',
             fileTooBig: 'File too large',
             invalidFile: 'File type not supported',
-            sessionExpired: 'Session expired'
+            sessionExpired: 'Session expired',
+            unauthorized: 'Unauthorized',
+            notFound: 'Not found'
         },
         warning: {
             offline: 'You are offline',
             typing: 'Typing...',
-            unsaved: 'Unsaved changes'
+            unsaved: 'Unsaved changes',
+            loading: 'Loading...'
         },
         confirm: {
             logout: 'Are you sure you want to logout?',
             deleteMessage: 'Delete message?',
-            clearChat: 'Clear conversation?'
+            clearChat: 'Clear conversation?',
+            deleteAccount: 'Are you sure? This action cannot be undone.'
         }
-    }
-};
-
-// ========================================
-// CONFIGURAÇÕES DE DEBUG
-// ========================================
-const DEBUG_CONFIG = {
-    enabled: ENV.current === 'development',
-    verbose: true,
-    
-    // Log levels
-    levels: {
-        info: true,
-        warn: true,
-        error: true,
-        debug: ENV.current === 'development'
-    },
-    
-    // Opções de logging
-    logging: {
-        maxLogEntries: 100,
-        saveToLocal: ENV.current === 'development',
-        showTimestamp: true,
-        showCaller: true
-    },
-    
-    // Simulações para teste
-    mock: {
-        enabled: ENV.current === 'development',
-        delay: 500, // ms
-        errorRate: 0.1 // 10% de chance de erro
     }
 };
 
@@ -567,7 +556,15 @@ const SECURITY_CONFIG = {
 const ConfigUtils = {
     // Obter URL base da API
     getApiUrl() {
-        return ENV.urls[ENV.current].api;
+        return `${JSONBIN_CONFIG.baseUrl}/b/${JSONBIN_CONFIG.binId}`;
+    },
+    
+    // Obter headers com autenticação
+    getHeaders() {
+        return {
+            ...JSONBIN_CONFIG.headers,
+            'X-Master-Key': JSONBIN_CONFIG.apiKey
+        };
     },
     
     // Obter URL do frontend
@@ -587,7 +584,11 @@ const ConfigUtils = {
             env: ENV.current,
             app: APP_CONFIG,
             features: this.getEnabledFeatures(),
-            limits: APP_CONFIG.limits
+            limits: APP_CONFIG.limits,
+            jsonbin: {
+                binId: JSONBIN_CONFIG.binId,
+                apiUrl: this.getApiUrl()
+            }
         };
     },
     
@@ -660,6 +661,24 @@ const ConfigUtils = {
     
     isTesting() {
         return ENV.current === 'testing';
+    },
+    
+    // Validar configurações do JSONBin
+    validateJsonBinConfig() {
+        const errors = [];
+        
+        if (!JSONBIN_CONFIG.apiKey || JSONBIN_CONFIG.apiKey === 'cole-sua-api-key-aqui') {
+            errors.push('API Key não configurada');
+        }
+        
+        if (!JSONBIN_CONFIG.binId || JSONBIN_CONFIG.binId === 'cole-seu-bin-id-aqui') {
+            errors.push('Bin ID não configurado');
+        }
+        
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
     }
 };
 
@@ -685,53 +704,48 @@ function initializeConfig() {
     const savedConfig = ConfigUtils.loadSavedConfig();
     if (savedConfig) {
         Object.assign(APP_CONFIG, savedConfig);
-        console.log('📦 Configurações carregadas');
+        console.log('📦 Configurações carregadas do localStorage');
     }
     
-    // Configurar JSONBin.io com IDs salvos
-    loadBinIds();
+    // Validar configurações do JSONBin
+    const validation = ConfigUtils.validateJsonBinConfig();
+    if (!validation.valid) {
+        console.warn('⚠️ Configurações do JSONBin incompletas:');
+        validation.errors.forEach(error => console.warn(`   - ${error}`));
+    } else {
+        console.log('✅ JSONBin configurado corretamente');
+    }
     
     // Configurar tema inicial
-    initializeTheme();
-    
-    console.log('✅ Configurações inicializadas');
-}
-
-function loadBinIds() {
-    try {
-        const saved = localStorage.getItem('jsonbin_ids');
-        if (saved) {
-            const ids = JSON.parse(saved);
-            JSONBIN_CONFIG.bins = ids;
-            console.log('📦 IDs dos bins carregados');
-        }
-    } catch (error) {
-        console.error('Erro ao carregar IDs dos bins:', error);
-    }
-}
-
-function initializeTheme() {
     const savedTheme = localStorage.getItem('lovechat_theme');
     if (savedTheme && APP_CONFIG.themes[savedTheme]) {
         document.documentElement.setAttribute('data-theme', savedTheme);
+        console.log(`🎨 Tema carregado: ${savedTheme}`);
     }
+    
+    console.log('✅ Configurações inicializadas');
 }
 
 // ========================================
 // EXPORTAÇÕES
 // ========================================
 const CONFIG = {
-    ENV,
-    JSONBIN_CONFIG,
-    DATABASE_CONFIG,
-    APP_CONFIG,
-    MEDIA_CONFIG,
-    SCORING_CONFIG,
-    NOTIFICATION_CONFIG,
-    MESSAGES,
-    DEBUG_CONFIG,
-    SECURITY_CONFIG,
-    utils: ConfigUtils
+    // Configurações principais
+    JSONBIN: JSONBIN_CONFIG,
+    ENV: ENV,
+    DATABASE: DATABASE_CONFIG,
+    APP: APP_CONFIG,
+    MEDIA: MEDIA_CONFIG,
+    SCORING: SCORING_CONFIG,
+    NOTIFICATION: NOTIFICATION_CONFIG,
+    MESSAGES: MESSAGES,
+    SECURITY: SECURITY_CONFIG,
+    
+    // Utilitários
+    utils: ConfigUtils,
+    
+    // Versão
+    VERSION: '1.0.0'
 };
 
 // Tornar disponível globalmente
@@ -739,12 +753,19 @@ window.LoveChatConfig = CONFIG;
 window.ConfigUtils = ConfigUtils;
 
 // ========================================
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO AUTOMÁTICA
 // ========================================
-initializeConfig();
+if (typeof window !== 'undefined') {
+    // Inicializar quando o DOM estiver pronto
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeConfig);
+    } else {
+        initializeConfig();
+    }
+}
 
 // ========================================
-// EXPORTAÇÃO PARA MÓDULOS
+// EXPORTAÇÃO PARA MÓDULOS (se usar Node.js)
 // ========================================
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CONFIG;
