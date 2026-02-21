@@ -9,7 +9,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -17,128 +17,484 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         .login-box {
             background: white;
             padding: 40px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            width: 90%;
+            width: 100%;
             max-width: 400px;
         }
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
+            font-size: 28px;
+        }
+        h1 i {
+            color: #ff4b6e;
+            margin-right: 10px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
         }
         input {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #eee;
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
         }
         button {
             width: 100%;
-            padding: 12px;
+            padding: 15px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
         button:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
         .teste {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 5px;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
             text-align: center;
         }
+        .teste p {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .teste code {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 5px;
+            color: #495057;
+            font-size: 14px;
+            display: inline-block;
+            margin: 3px;
+        }
         .erro {
-            color: red;
+            color: #f44336;
             text-align: center;
-            margin-top: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 5px;
+            display: none;
+            font-size: 14px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .btn-link {
+            background: none;
+            color: #667eea;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .btn-link:hover {
+            background: none;
+            box-shadow: none;
+            text-decoration: underline;
+        }
+        .register-form {
             display: none;
         }
     </style>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="login-box">
-        <h1>💕 LoveChat</h1>
+        <h1><i class="fas fa-heart"></i> LoveChat</h1>
         
-        <div class="erro" id="erroMsg">Erro no login</div>
+        <!-- Mensagem de erro -->
+        <div class="erro" id="erroMsg"></div>
         
-        <input type="email" id="email" placeholder="E-mail" value="teste@email.com">
-        <input type="password" id="senha" placeholder="Senha" value="123456">
+        <!-- Formulário de Login -->
+        <div id="loginForm">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Seu e-mail" value="teste@email.com">
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="senha" placeholder="Sua senha" value="123456">
+            </div>
+            
+            <button id="btnLogin" onclick="fazerLogin()">
+                <span>Entrar</span>
+            </button>
+            
+            <button class="btn-link" onclick="mostrarRegistro()">
+                Não tem uma conta? Criar agora
+            </button>
+        </div>
         
-        <button onclick="fazerLogin()">ENTRAR</button>
+        <!-- Formulário de Registro -->
+        <div id="registerForm" class="register-form">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="regNome" placeholder="Seu nome">
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="regEmail" placeholder="Seu e-mail">
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="regSenha" placeholder="Sua senha (mínimo 6 caracteres)">
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="regConfirmSenha" placeholder="Confirmar senha">
+            </div>
+            
+            <button id="btnRegister" onclick="fazerRegistro()">
+                <span>Criar Conta</span>
+            </button>
+            
+            <button class="btn-link" onclick="mostrarLogin()">
+                Voltar para login
+            </button>
+        </div>
 
+        <!-- Credenciais de teste -->
         <div class="teste">
-            <p>🔑 Conta de teste:</p>
-            <strong>teste@email.com</strong> / <strong>123456</strong>
+            <p><i class="fas fa-flask"></i> Conta de teste:</p>
+            <code>teste@email.com</code> <code>123456</code>
+            <p style="margin-top: 10px; font-size: 12px; color: #999;">Use estas credenciais para testar</p>
         </div>
     </div>
 
     <script>
-        // Função de login SUPER SIMPLES
-        function fazerLogin() {
-            console.log('=== INICIANDO LOGIN ===');
-            
-            // Pegar valores dos campos
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            
-            console.log('Email digitado:', email);
-            console.log('Senha digitada:', senha);
-            
-            // Verificar se é o usuário de teste
-            if (email === 'teste@email.com' && senha === '123456') {
-                console.log('✅ Login válido!');
-                
-                // Criar objeto do usuário
-                const usuario = {
-                    id: 1,
-                    nome: 'Usuário Teste',
-                    email: 'teste@email.com',
-                    foto: 'https://via.placeholder.com/150/667eea/ffffff?text=Teste',
-                    pontos: 0
-                };
-                
-                // Salvar no localStorage
-                localStorage.setItem('usuario', JSON.stringify(usuario));
-                console.log('✅ Usuário salvo no localStorage');
-                
-                // Verificar se salvou
-                const verificar = localStorage.getItem('usuario');
-                console.log('Verificação:', verificar);
-                
-                // Redirecionar
-                console.log('Redirecionando para chat.html...');
-                window.location.href = 'pages/chat.html';
-                
-            } else {
-                console.log('❌ Login inválido!');
-                document.getElementById('erroMsg').style.display = 'block';
-                document.getElementById('erroMsg').innerHTML = 'E-mail ou senha incorretos! Use: teste@email.com / 123456';
+        // ========================================
+        // CONFIGURAÇÕES DO JSONBIN.IO
+        // ========================================
+        const CONFIG = {
+            API_KEY: '$2a$10$gHdA8KAK/9HnnagDiMTlHeBUzNo9cWC0lR8EL0IaUpJg5ChpGiz/i',
+            BIN_ID: '6999bfbbae596e708f3cfdfb',
+            BASE_URL: 'https://api.jsonbin.io/v3'
+        };
+
+        const API_HEADERS = {
+            'Content-Type': 'application/json',
+            'X-Master-Key': CONFIG.API_KEY
+        };
+
+        // ========================================
+        // FUNÇÕES DA API
+        // ========================================
+        
+        async function getData() {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/b/${CONFIG.BIN_ID}/latest`, {
+                    headers: API_HEADERS
+                });
+                if (!response.ok) throw new Error('Erro ao buscar dados');
+                const data = await response.json();
+                return data.record;
+            } catch (error) {
+                console.error('Erro:', error);
+                return null;
             }
         }
+
+        async function saveData(data) {
+            try {
+                const response = await fetch(`${CONFIG.BASE_URL}/b/${CONFIG.BIN_ID}`, {
+                    method: 'PUT',
+                    headers: API_HEADERS,
+                    body: JSON.stringify(data)
+                });
+                return response.ok;
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                return false;
+            }
+        }
+
+        async function getUsers() {
+            const data = await getData();
+            return data?.users || [];
+        }
+
+        async function saveUser(user) {
+            const data = await getData();
+            if (!data) return false;
+            
+            const index = data.users.findIndex(u => u.id === user.id);
+            if (index >= 0) {
+                data.users[index] = user;
+            } else {
+                user.id = Date.now();
+                user.dataCriacao = new Date().toISOString();
+                data.users.push(user);
+            }
+            
+            return await saveData(data);
+        }
+
+        // ========================================
+        // FUNÇÕES DE INTERFACE
+        // ========================================
         
-        // Verificar se já está logado ao carregar a página
-        window.onload = function() {
-            console.log('=== PÁGINA CARREGADA ===');
+        function mostrarErro(msg) {
+            const erroDiv = document.getElementById('erroMsg');
+            erroDiv.style.display = 'block';
+            erroDiv.innerHTML = msg;
+            setTimeout(() => {
+                erroDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function mostrarLoading(btnId, mostrar) {
+            const btn = document.getElementById(btnId);
+            if (mostrar) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span> Processando...';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Entrar</span>';
+            }
+        }
+
+        function mostrarRegistro() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function mostrarLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        // ========================================
+        // FUNÇÃO DE LOGIN
+        // ========================================
+        
+        async function fazerLogin() {
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+            
+            if (!email || !senha) {
+                mostrarErro('Preencha todos os campos');
+                return;
+            }
+            
+            mostrarLoading('btnLogin', true);
+            
+            try {
+                // Buscar usuários do JSONBin
+                const users = await getUsers();
+                console.log('Usuários carregados:', users);
+                
+                // Procurar usuário
+                const user = users.find(u => u.email === email && u.senha === senha);
+                
+                if (user) {
+                    console.log('Login bem-sucedido:', user);
+                    
+                    // Atualizar status online
+                    user.online = true;
+                    user.ultimoAcesso = new Date().toISOString();
+                    await saveUser(user);
+                    
+                    // Salvar na sessão
+                    const usuario = {
+                        id: user.id,
+                        nome: user.nome,
+                        email: user.email,
+                        foto: user.foto || 'https://via.placeholder.com/150/667eea/ffffff?text=User',
+                        score: user.score || 0
+                    };
+                    
+                    localStorage.setItem('usuario', JSON.stringify(usuario));
+                    
+                    // Redirecionar
+                    window.location.href = 'pages/chat.html';
+                    
+                } else {
+                    mostrarErro('E-mail ou senha incorretos!');
+                    mostrarLoading('btnLogin', false);
+                }
+                
+            } catch (error) {
+                console.error('Erro no login:', error);
+                mostrarErro('Erro ao fazer login. Tente novamente.');
+                mostrarLoading('btnLogin', false);
+            }
+        }
+
+        // ========================================
+        // FUNÇÃO DE REGISTRO
+        // ========================================
+        
+        async function fazerRegistro() {
+            const nome = document.getElementById('regNome').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const senha = document.getElementById('regSenha').value;
+            const confirmSenha = document.getElementById('regConfirmSenha').value;
+            
+            // Validações
+            if (!nome || !email || !senha || !confirmSenha) {
+                mostrarErro('Preencha todos os campos');
+                return;
+            }
+            
+            if (nome.length < 3) {
+                mostrarErro('Nome deve ter pelo menos 3 caracteres');
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                mostrarErro('E-mail inválido');
+                return;
+            }
+            
+            if (senha.length < 6) {
+                mostrarErro('Senha deve ter pelo menos 6 caracteres');
+                return;
+            }
+            
+            if (senha !== confirmSenha) {
+                mostrarErro('As senhas não coincidem');
+                return;
+            }
+            
+            mostrarLoading('btnRegister', true);
+            
+            try {
+                // Buscar usuários existentes
+                const users = await getUsers();
+                
+                // Verificar se email já existe
+                if (users.some(u => u.email === email)) {
+                    mostrarErro('Este e-mail já está cadastrado');
+                    mostrarLoading('btnRegister', false);
+                    return;
+                }
+                
+                // Criar novo usuário
+                const newUser = {
+                    nome: nome,
+                    email: email,
+                    senha: senha,
+                    foto: `https://via.placeholder.com/150/${Math.floor(Math.random()*16777215).toString(16)}/ffffff?text=${nome.charAt(0)}`,
+                    score: 0,
+                    online: false,
+                    ultimoAcesso: null
+                };
+                
+                await saveUser(newUser);
+                
+                alert('Conta criada com sucesso! Faça o login.');
+                mostrarLogin();
+                
+                // Limpar campos
+                document.getElementById('regNome').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regSenha').value = '';
+                document.getElementById('regConfirmSenha').value = '';
+                
+                // Preencher login
+                document.getElementById('email').value = email;
+                document.getElementById('senha').value = senha;
+                
+            } catch (error) {
+                console.error('Erro no registro:', error);
+                mostrarErro('Erro ao criar conta. Tente novamente.');
+            } finally {
+                mostrarLoading('btnRegister', false);
+            }
+        }
+
+        // ========================================
+        // INICIALIZAÇÃO
+        // ========================================
+        
+        window.onload = async function() {
+            console.log('Página de login carregada');
+            
+            // Verificar se já está logado
             const usuario = localStorage.getItem('usuario');
             if (usuario) {
-                console.log('Usuário já logado encontrado:', usuario);
-                console.log('Redirecionando para chat...');
+                console.log('Usuário já logado, redirecionando...');
                 window.location.href = 'pages/chat.html';
-            } else {
-                console.log('Nenhum usuário logado');
+            }
+            
+            // Verificar conexão com JSONBin
+            try {
+                const data = await getData();
+                if (data) {
+                    console.log('✅ Conectado ao JSONBin.io');
+                } else {
+                    console.log('⚠️ Criando estrutura inicial...');
+                    const initialData = {
+                        users: [{
+                            id: 1,
+                            nome: 'Usuário Teste',
+                            email: 'teste@email.com',
+                            senha: '123456',
+                            foto: 'https://via.placeholder.com/150/667eea/ffffff?text=Teste',
+                            score: 0,
+                            online: false,
+                            ultimoAcesso: null,
+                            dataCriacao: new Date().toISOString()
+                        }],
+                        messages: [],
+                        scores: []
+                    };
+                    await saveData(initialData);
+                    console.log('✅ Estrutura criada');
+                }
+            } catch (error) {
+                console.error('❌ Erro de conexão:', error);
             }
         };
     </script>
