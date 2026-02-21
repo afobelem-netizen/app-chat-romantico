@@ -486,7 +486,7 @@
             }
         }
 
-        /* Modal de recuperação de senha */
+        /* Modal de criação de conta */
         .modal {
             display: none;
             position: fixed;
@@ -523,6 +523,8 @@
             max-width: 400px;
             position: relative;
             animation: slideUpModal 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes slideUpModal {
@@ -562,7 +564,7 @@
             font-size: 14px;
         }
 
-        .btn-recover {
+        .btn-recover, .btn-register {
             width: 100%;
             padding: 15px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -576,7 +578,7 @@
             margin-top: 10px;
         }
 
-        .btn-recover:hover {
+        .btn-recover:hover, .btn-register:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
@@ -648,22 +650,6 @@
                 transform: translateX(5px);
             }
         }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
-            }
-        }
     </style>
 </head>
 <body>
@@ -680,7 +666,7 @@
         <div class="login-card">
             <!-- Cabeçalho -->
             <div class="login-header">
-                <a href="index.html" class="back-home">
+                <a href="/app-chat-romantico/index.html" class="back-home">
                     <i class="fas fa-arrow-left"></i> Voltar para página inicial
                 </a>
                 <div class="heart-icon">
@@ -736,7 +722,7 @@
                 <span>ou entre com</span>
             </div>
 
-            <!-- Login social (opcional - apenas demonstração) -->
+            <!-- Login social -->
             <div class="social-login">
                 <button class="social-btn google" onclick="showToast('Login com Google em breve!', 'info')">
                     <i class="fab fa-google"></i>
@@ -751,7 +737,7 @@
 
             <!-- Rodapé -->
             <div class="login-footer">
-                <p>Não tem uma conta? <a onclick="redirectToCreateAccount()">Criar conta agora</a></p>
+                <p>Não tem uma conta? <a onclick="openRegisterModal()">Criar conta agora</a></p>
                 
                 <!-- Credenciais de teste -->
                 <div class="test-credentials">
@@ -816,7 +802,7 @@
                     <label for="termos">Aceito os termos de uso e política de privacidade</label>
                 </div>
 
-                <button type="submit" class="btn-recover" id="registerBtn">
+                <button type="submit" class="btn-register" id="registerBtn">
                     Criar conta
                 </button>
             </form>
@@ -924,7 +910,6 @@
         
         function validateEmail(email) {
             if (!email) return false;
-            
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
@@ -1018,9 +1003,9 @@
                     
                     showToast(`Bem-vindo(a), ${user.nome}!`, 'success');
                     
-                    // Redirecionar para o chat (CORRIGIDO: com pages/)
+                    // REDIRECIONAMENTO CORRIGIDO - CAMINHO ABSOLUTO
                     setTimeout(() => {
-                        window.location.href = 'pages/chat.html';
+                        window.location.href = '/app-chat-romantico/pages/chat.html';
                     }, 1500);
                     
                 } else {
@@ -1160,14 +1145,6 @@
         }
 
         // ========================================
-        // FUNÇÕES DE REDIRECIONAMENTO
-        // ========================================
-        
-        function redirectToCreateAccount() {
-            openRegisterModal();
-        }
-
-        // ========================================
         // FUNÇÕES DE RECUPERAÇÃO DE SENHA
         // ========================================
         
@@ -1241,11 +1218,10 @@
                     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                     passwordInput.setAttribute('type', type);
                     
-                    const icon = this.querySelector('i') || this;
                     if (type === 'text') {
-                        icon.className = 'fas fa-eye-slash input-icon';
+                        this.className = 'fas fa-eye-slash input-icon';
                     } else {
-                        icon.className = 'fas fa-eye input-icon';
+                        this.className = 'fas fa-eye input-icon';
                     }
                 });
             }
@@ -1269,7 +1245,7 @@
             if (currentUser) {
                 showToast('Você já está logado! Redirecionando...', 'info');
                 setTimeout(() => {
-                    window.location.href = 'pages/chat.html';
+                    window.location.href = '/app-chat-romantico/pages/chat.html';
                 }, 1500);
             }
             
@@ -1326,7 +1302,6 @@
         window.closeRegisterModal = closeRegisterModal;
         window.openRecoverModal = openRecoverModal;
         window.closeRecoverModal = closeRecoverModal;
-        window.redirectToCreateAccount = redirectToCreateAccount;
         window.showToast = showToast;
     </script>
 </body>
