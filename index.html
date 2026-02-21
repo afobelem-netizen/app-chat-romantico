@@ -46,18 +46,22 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Mudado de center para flex-start */
             position: relative;
-            overflow: hidden;
+            overflow-y: auto; /* Habilitar scroll vertical */
+            padding: 20px 0; /* Adicionar padding vertical */
         }
 
-        /* Corações flutuantes animados */
+        /* Corações flutuantes animados - ajustados para não bloquear scroll */
         .floating-hearts {
-            position: absolute;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             overflow: hidden;
             z-index: 1;
+            pointer-events: none; /* Permite clicar através dos corações */
         }
 
         .heart {
@@ -65,6 +69,7 @@
             font-size: 20px;
             color: rgba(255, 255, 255, 0.3);
             animation: float 6s infinite;
+            pointer-events: none;
         }
 
         @keyframes float {
@@ -81,7 +86,7 @@
             }
         }
 
-        /* Container principal */
+        /* Container principal - agora com scroll */
         .landing-container {
             position: relative;
             z-index: 2;
@@ -91,9 +96,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100%; /* Garantir altura mínima */
         }
 
-        /* Card principal */
+        /* Card principal - ajustado para scroll */
         .hero-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -102,8 +108,10 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             text-align: center;
             max-width: 600px;
+            width: 100%; /* Garantir largura total */
             animation: slideUp 1s ease;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 40px auto; /* Margem para dar espaço ao scroll */
         }
 
         @keyframes slideUp {
@@ -205,6 +213,7 @@
             gap: 20px;
             justify-content: center;
             margin-bottom: 30px;
+            flex-wrap: wrap; /* Permitir quebra em telas pequenas */
         }
 
         .btn-primary, .btn-secondary {
@@ -219,6 +228,8 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
+            min-width: 200px; /* Largura mínima para botões */
+            justify-content: center;
         }
 
         .btn-primary {
@@ -251,6 +262,7 @@
             gap: 40px;
             padding-top: 20px;
             border-top: 1px solid #eee;
+            flex-wrap: wrap; /* Permitir quebra */
         }
 
         .stat-item {
@@ -282,6 +294,8 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            overflow-y: auto; /* Permitir scroll no modal */
+            padding: 20px;
         }
 
         .modal.active {
@@ -296,6 +310,9 @@
             max-width: 400px;
             position: relative;
             animation: modalSlide 0.3s;
+            margin: auto; /* Centralizar */
+            max-height: 90vh;
+            overflow-y: auto; /* Scroll interno se necessário */
         }
 
         @keyframes modalSlide {
@@ -368,37 +385,6 @@
             transform: translateY(-2px);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-card {
-                padding: 30px 20px;
-            }
-
-            h1 {
-                font-size: 36px;
-            }
-
-            .features {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-            }
-
-            .stats {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .features {
-                grid-template-columns: 1fr;
-            }
-        }
-
         /* Loading spinner */
         .loading-spinner {
             display: inline-block;
@@ -426,6 +412,7 @@
             z-index: 2000;
             animation: slideIn 0.3s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-width: 350px;
         }
 
         .message-toast.success {
@@ -450,11 +437,117 @@
                 opacity: 1;
             }
         }
+
+        /* Indicador de scroll */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 24px;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            z-index: 100;
+            background: rgba(0,0,0,0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-20px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 0;
+            }
+
+            .hero-card {
+                padding: 30px 20px;
+                margin: 20px auto;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+
+            .scroll-indicator {
+                bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .stat-number {
+                font-size: 20px;
+            }
+        }
+
+        /* Altura mínima para garantir scroll em telas pequenas */
+        @media (max-height: 700px) {
+            .hero-card {
+                margin: 20px auto;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Corações flutuantes -->
     <div class="floating-hearts" id="hearts"></div>
+
+    <!-- Indicador de scroll (opcional) -->
+    <div class="scroll-indicator" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})">
+        <i class="fas fa-chevron-down"></i>
+    </div>
 
     <!-- Container principal -->
     <div class="landing-container">
@@ -576,10 +669,12 @@
         // Funções do modal
         function openCreateAccountModal() {
             document.getElementById('createAccountModal').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevenir scroll do body quando modal aberto
         }
 
         function closeCreateAccountModal() {
             document.getElementById('createAccountModal').classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restaurar scroll
             document.getElementById('createAccountForm').reset();
         }
 
@@ -705,6 +800,16 @@
                 closeCreateAccountModal();
             }
         }
+
+        // Detectar scroll para esconder/mostrar indicador
+        window.addEventListener('scroll', function() {
+            const indicator = document.querySelector('.scroll-indicator');
+            if (window.scrollY > 100) {
+                indicator.style.opacity = '0';
+            } else {
+                indicator.style.opacity = '1';
+            }
+        });
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
