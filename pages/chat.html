@@ -2,223 +2,167 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>LoveChat - Chat Romântico</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background: linear-gradient(135deg, #667eea, #764ba2);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
         }
 
         .chat-container {
             width: 100%;
-            max-width: 1200px;
-            height: 90vh;
+            height: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            display: flex;
-            overflow: hidden;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 280px;
-            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        .profile-header {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+            flex-shrink: 0;
         }
 
-        .profile-avatar {
-            width: 80px;
-            height: 80px;
+        .user-info-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-small {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: #ffd700;
-            margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
             font-weight: bold;
             color: #333;
-            border: 3px solid white;
-        }
-
-        .profile-header h3 {
             font-size: 18px;
-            margin-bottom: 5px;
+            border: 2px solid white;
         }
 
-        .score-display {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 14px;
-        }
-
-        .score-display i {
-            color: gold;
-            margin-right: 5px;
-        }
-
-        .menu-options {
-            margin-top: 30px;
+        .user-details {
             display: flex;
             flex-direction: column;
-            gap: 10px;
         }
 
-        .menu-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-score-small {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .menu-icon {
+            font-size: 24px;
             cursor: pointer;
-            text-align: left;
-            font-size: 15px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .menu-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateX(5px);
-        }
-
-        .menu-btn i {
-            width: 20px;
-        }
-
-        .user-status {
-            margin-top: auto;
-            padding: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .online-indicator {
-            width: 10px;
-            height: 10px;
-            background: #4caf50;
+            padding: 8px;
             border-radius: 50%;
-            animation: pulse 2s infinite;
+            transition: background 0.3s;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        .menu-icon:hover {
+            background: rgba(255,255,255,0.2);
         }
 
-        /* ===== CHAT PRINCIPAL ===== */
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f5f5f5;
-        }
-
-        .chat-header {
+        /* ===== PARTNER INFO ===== */
+        .partner-bar {
             background: white;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 8px 16px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .chat-header h2 {
-            color: #333;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chat-header h2 i {
-            color: #ff4b6e;
-            animation: heartbeat 1.5s infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            25% { transform: scale(1.1); }
-            50% { transform: scale(1); }
-            75% { transform: scale(1.1); }
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            flex-shrink: 0;
         }
 
         .partner-info {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 8px;
         }
 
-        .partner-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #666;
-            font-size: 14px;
+        .online-indicator-small {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
         }
 
-        .partner-score {
+        .partner-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .partner-score-badge {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 8px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 14px;
             font-weight: 600;
+            font-size: 13px;
         }
 
         /* ===== ÁREA DE MENSAGENS ===== */
         .messages-area {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
+            background: #f5f5f5;
+            -webkit-overflow-scrolling: touch;
         }
 
         .message {
-            max-width: 70%;
-            padding: 12px 18px;
-            border-radius: 15px;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 20px;
             animation: fadeIn 0.3s;
             word-wrap: break-word;
+            position: relative;
         }
 
         .message.sent {
             align-self: flex-end;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            border-bottom-right-radius: 5px;
+            border-bottom-right-radius: 4px;
         }
 
         .message.received {
@@ -226,7 +170,7 @@
             background: white;
             color: #333;
             border: 1px solid #eee;
-            border-bottom-left-radius: 5px;
+            border-bottom-left-radius: 4px;
         }
 
         .message.system {
@@ -235,14 +179,15 @@
             color: #666;
             font-size: 12px;
             font-style: italic;
-            max-width: 50%;
+            max-width: 90%;
             text-align: center;
+            padding: 8px 16px;
         }
 
         .sender-name {
             font-size: 11px;
             font-weight: 600;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             color: #667eea;
         }
 
@@ -251,21 +196,21 @@
         }
 
         .message-time {
-            font-size: 10px;
+            font-size: 9px;
             opacity: 0.7;
-            margin-top: 5px;
+            margin-top: 4px;
             text-align: right;
         }
 
         .message img, .message video {
             max-width: 100%;
-            border-radius: 10px;
-            margin-top: 5px;
+            border-radius: 12px;
+            margin-top: 4px;
         }
 
         .message audio {
             width: 100%;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
         @keyframes fadeIn {
@@ -282,26 +227,34 @@
         /* ===== ÁREA DE PONTUAÇÃO ===== */
         .scoring-area {
             background: white;
-            padding: 15px;
+            padding: 12px;
             border-top: 1px solid #eee;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            flex-shrink: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
         .score-btn {
             border: none;
-            padding: 10px 20px;
+            padding: 10px 0;
             border-radius: 25px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 5px;
-            font-size: 14px;
+            justify-content: center;
+            gap: 4px;
+            font-size: 13px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .score-btn:active {
+            transform: scale(0.95);
         }
 
         .score-btn.positive {
@@ -309,51 +262,44 @@
             color: white;
         }
 
-        .score-btn.positive:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
-        }
-
         .score-btn.negative {
             background: linear-gradient(135deg, #f44336, #da190b);
             color: white;
         }
 
-        .score-btn.negative:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
-        }
-
         /* ===== ÁREA DE INPUT ===== */
         .message-input-area {
             background: white;
-            padding: 20px;
+            padding: 12px;
             border-top: 1px solid #eee;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
         .input-actions {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 8px;
+            justify-content: space-around;
         }
 
         .action-btn {
             background: none;
             border: none;
             color: #666;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             transition: all 0.3s;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .action-btn:hover {
+        .action-btn:active {
             background: #f0f0f0;
             color: #667eea;
             transform: scale(1.1);
@@ -361,16 +307,19 @@
 
         .message-input-wrapper {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
         }
 
         .message-input-wrapper input {
             flex: 1;
-            padding: 12px 20px;
+            padding: 12px 16px;
             border: 2px solid #eee;
             border-radius: 25px;
-            font-size: 14px;
+            font-size: 15px;
             transition: all 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         .message-input-wrapper input:focus {
@@ -383,27 +332,252 @@
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ===== SIDEBAR OVERLAY (MENU LATERAL) ===== */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .sidebar-menu {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            z-index: 1001;
+            transition: right 0.3s ease;
+            padding: 20px;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-menu.active {
+            right: 0;
+        }
+
+        .sidebar-profile {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #ffd700;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            border: 3px solid white;
+        }
+
+        .sidebar-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-score {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .sidebar-menu-items {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-menu-item {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .sidebar-menu-item:active {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu-item i {
+            width: 24px;
             font-size: 18px;
         }
 
-        .send-btn:hover {
-            transform: scale(1.1) rotate(15deg);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        .sidebar-close {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 5px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-position {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .ranking-position.gold { background: gold; }
+        .ranking-position.silver { background: silver; }
+        .ranking-position.bronze { background: #cd7f32; }
+
+        .ranking-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .ranking-name {
+            flex: 1;
+            font-size: 15px;
+        }
+
+        .ranking-score {
+            background: #4caf50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             color: #999;
-            padding: 40px;
+            padding: 40px 20px;
         }
 
         .empty-state i {
@@ -434,140 +608,45 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-close {
-            font-size: 24px;
-            cursor: pointer;
-            color: #999;
-        }
-
-        .modal-close:hover {
-            color: #333;
-        }
-
-        .ranking-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .ranking-position {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #667eea;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .ranking-position.gold { background: gold; }
-        .ranking-position.silver { background: silver; }
-        .ranking-position.bronze { background: #cd7f32; }
-
-        .ranking-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .ranking-name {
-            flex: 1;
-        }
-
-        .ranking-score {
-            background: #4caf50;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .chat-container {
-                flex-direction: column;
-                height: 95vh;
+        /* ===== AJUSTES ESPECÍFICOS PARA iOS ===== */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                height: -webkit-fill-available;
             }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                align-items: center;
-                padding: 10px;
+            
+            .messages-area {
+                padding-bottom: 20px;
             }
+        }
 
-            .profile-header {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 0;
-                border: none;
+        /* ===== ORIENTAÇÃO PAISAGEM ===== */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .top-bar {
+                padding: 8px 16px;
             }
-
-            .profile-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-                margin: 0;
+            
+            .avatar-small {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
             }
-
-            .menu-options {
-                flex-direction: row;
-                margin: 0 0 0 auto;
+            
+            .scoring-area {
+                grid-template-columns: repeat(6, 1fr);
+                padding: 8px;
             }
-
-            .user-status {
-                display: none;
+            
+            .score-btn {
+                padding: 6px 0;
+                font-size: 12px;
             }
-
-            .partner-info {
-                flex-direction: column;
-                gap: 5px;
+            
+            .message-input-area {
+                padding: 8px;
             }
-
-            .message {
-                max-width: 85%;
+            
+            .messages-area {
+                padding: 8px;
             }
         }
     </style>
@@ -576,113 +655,114 @@
 </head>
 <body>
     <div class="chat-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="profile-header">
-                <div class="profile-avatar" id="avatar">?</div>
-                <div>
-                    <h3 id="userName">Carregando...</h3>
-                    <div class="score-display">
-                        <i class="fas fa-star"></i>
-                        <span id="userScore">0</span> pontos
-                    </div>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="user-info-top">
+                <div class="avatar-small" id="avatar">?</div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">Carregando...</span>
+                    <span class="user-score-small" id="userScoreSmall">0 pontos</span>
                 </div>
             </div>
-
-            <div class="menu-options">
-                <button class="menu-btn" onclick="showProfile()">
-                    <i class="fas fa-user"></i>
-                    <span>Meu Perfil</span>
-                </button>
-                <button class="menu-btn" onclick="showRanking()">
-                    <i class="fas fa-trophy"></i>
-                    <span>Ranking</span>
-                </button>
-                <button class="menu-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </button>
-            </div>
-
-            <div class="user-status">
-                <div class="online-indicator"></div>
-                <span>Online</span>
+            <div class="menu-icon" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
             </div>
         </div>
 
-        <!-- Chat Principal -->
-        <div class="chat-main">
-            <div class="chat-header">
-                <h2>
-                    <i class="fas fa-heart"></i>
-                    Conversa Romântica
-                </h2>
-                <div class="partner-info">
-                    <div class="partner-status" id="partnerStatus">
-                        <i class="fas fa-circle" style="color: #4caf50;"></i>
-                        <span id="partnerName">Carregando...</span>
-                    </div>
-                    <div class="partner-score" id="partnerScore">
-                        0 pts
-                    </div>
-                </div>
+        <!-- Partner Bar -->
+        <div class="partner-bar">
+            <div class="partner-info">
+                <div class="online-indicator-small"></div>
+                <span class="partner-name" id="partnerName">Carregando...</span>
             </div>
-
-            <!-- Área de Mensagens -->
-            <div class="messages-area" id="messagesArea">
-                <div class="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Carregando mensagens...</p>
-                </div>
+            <div class="partner-score-badge" id="partnerScore">
+                0 pts
             </div>
+        </div>
 
-            <!-- Área de Pontuação (agora para pontuar o parceiro) -->
-            <div class="scoring-area">
-                <button class="score-btn positive" onclick="pontuarParceiro(1, 'Carinho')">
-                    <i class="fas fa-smile"></i> Dar +1
+        <!-- Área de Mensagens -->
+        <div class="messages-area" id="messagesArea">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Carregando mensagens...</p>
+            </div>
+        </div>
+
+        <!-- Área de Pontuação -->
+        <div class="scoring-area">
+            <button class="score-btn positive" onclick="pontuarParceiro(1, 'Carinho')">
+                <i class="fas fa-smile"></i> +1
+            </button>
+            <button class="score-btn positive" onclick="pontuarParceiro(5, 'Amor')">
+                <i class="fas fa-heart"></i> +5
+            </button>
+            <button class="score-btn positive" onclick="pontuarParceiro(10, 'Especial')">
+                <i class="fas fa-crown"></i> +10
+            </button>
+            <button class="score-btn negative" onclick="pontuarParceiro(-1, 'Esquecimento')">
+                <i class="fas fa-frown"></i> -1
+            </button>
+            <button class="score-btn negative" onclick="pontuarParceiro(-3, 'Atraso')">
+                <i class="fas fa-angry"></i> -3
+            </button>
+            <button class="score-btn negative" onclick="pontuarParceiro(-5, 'Falha')">
+                <i class="fas fa-skull"></i> -5
+            </button>
+        </div>
+
+        <!-- Área de Input -->
+        <div class="message-input-area">
+            <div class="input-actions">
+                <button class="action-btn" onclick="sendImage()" title="Enviar imagem">
+                    <i class="fas fa-image"></i>
                 </button>
-                <button class="score-btn positive" onclick="pontuarParceiro(5, 'Amor')">
-                    <i class="fas fa-heart"></i> Dar +5
+                <button class="action-btn" onclick="sendVideo()" title="Enviar vídeo">
+                    <i class="fas fa-video"></i>
                 </button>
-                <button class="score-btn positive" onclick="pontuarParceiro(10, 'Especial')">
-                    <i class="fas fa-crown"></i> Dar +10
-                </button>
-                <button class="score-btn negative" onclick="pontuarParceiro(-1, 'Esquecimento')">
-                    <i class="fas fa-frown"></i> Penalidade -1
-                </button>
-                <button class="score-btn negative" onclick="pontuarParceiro(-3, 'Atraso')">
-                    <i class="fas fa-angry"></i> Penalidade -3
-                </button>
-                <button class="score-btn negative" onclick="pontuarParceiro(-5, 'Falha')">
-                    <i class="fas fa-skull"></i> Penalidade -5
+                <button class="action-btn" onclick="sendAudio()" title="Enviar áudio">
+                    <i class="fas fa-microphone"></i>
                 </button>
             </div>
-
-            <!-- Área de Input -->
-            <div class="message-input-area">
-                <div class="input-actions">
-                    <button class="action-btn" onclick="sendImage()" title="Enviar imagem">
-                        <i class="fas fa-image"></i>
-                    </button>
-                    <button class="action-btn" onclick="sendVideo()" title="Enviar vídeo">
-                        <i class="fas fa-video"></i>
-                    </button>
-                    <button class="action-btn" onclick="sendAudio()" title="Enviar áudio">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-                <div class="message-input-wrapper">
-                    <input type="text" id="messageInput" placeholder="Digite sua mensagem..." autocomplete="off">
-                    <button class="send-btn" onclick="sendMessage()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
+            <div class="message-input-wrapper">
+                <input type="text" id="messageInput" placeholder="Digite sua mensagem..." autocomplete="off">
+                <button class="send-btn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Sidebar Overlay e Menu -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMenu()"></div>
+    <div class="sidebar-menu" id="sidebarMenu">
+        <div class="sidebar-close" onclick="closeMenu()">
+            <i class="fas fa-times"></i>
+        </div>
+        
+        <div class="sidebar-profile">
+            <div class="sidebar-avatar" id="sidebarAvatar">?</div>
+            <div class="sidebar-name" id="sidebarName">Carregando...</div>
+            <div class="sidebar-score" id="sidebarScore">0 pontos</div>
+        </div>
+
+        <div class="sidebar-menu-items">
+            <button class="sidebar-menu-item" onclick="showProfile(); closeMenu()">
+                <i class="fas fa-user"></i>
+                <span>Meu Perfil</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="showRanking(); closeMenu()">
+                <i class="fas fa-trophy"></i>
+                <span>Ranking</span>
+            </button>
+            <button class="sidebar-menu-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Modal de Ranking -->
-    <div class="modal" id="rankingModal">
+    <div class="modal" id="rankingModal" onclick="if(event.target === this) closeRankingModal()">
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-trophy"></i> Ranking do Casal</h2>
@@ -819,9 +899,15 @@
             
             try {
                 currentUser = JSON.parse(dados);
+                
+                // Atualizar elementos da UI
                 document.getElementById('userName').textContent = currentUser.nome;
-                document.getElementById('userScore').textContent = currentUser.score || 0;
+                document.getElementById('userScoreSmall').textContent = (currentUser.score || 0) + ' pontos';
                 document.getElementById('avatar').textContent = currentUser.nome.charAt(0).toUpperCase();
+                document.getElementById('sidebarName').textContent = currentUser.nome;
+                document.getElementById('sidebarScore').textContent = (currentUser.score || 0) + ' pontos';
+                document.getElementById('sidebarAvatar').textContent = currentUser.nome.charAt(0).toUpperCase();
+                
                 return true;
             } catch (e) {
                 console.error('Erro ao carregar usuário:', e);
@@ -932,7 +1018,7 @@
         }
 
         // ========================================
-        // FUNÇÃO CORRIGIDA: PONTUAR O PARCEIRO
+        // FUNÇÃO DE PONTUAÇÃO (PARA O PARCEIRO)
         // ========================================
         async function pontuarParceiro(points, reason) {
             if (!partnerUser) {
@@ -940,10 +1026,9 @@
                 return;
             }
 
-            // Confirmar ação
-            const acao = points > 0 ? 'dar' : 'aplicar';
-            if (!confirm(`Deseja ${acao} ${Math.abs(points)} pontos para ${partnerUser.nome}?`)) {
-                return;
+            // Feedback tátil (se disponível)
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(50);
             }
             
             // Registrar pontuação para o PARCEIRO
@@ -1074,6 +1159,18 @@
         // FUNÇÕES DE INTERFACE
         // ========================================
         
+        function toggleMenu() {
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.getElementById('sidebarMenu').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() {
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.getElementById('sidebarMenu').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         function showProfile() {
             alert(`Meu Perfil:\n\nNome: ${currentUser.nome}\nEmail: ${currentUser.email}\nMeus Pontos: ${currentUser.score}`);
         }
@@ -1083,6 +1180,7 @@
             const list = document.getElementById('rankingList');
             
             modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
             
             try {
                 const users = await getUsers();
@@ -1107,6 +1205,7 @@
 
         function closeRankingModal() {
             document.getElementById('rankingModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         function logout() {
@@ -1142,9 +1241,32 @@
                 const updatedMe = users.find(u => u.id === currentUser.id);
                 if (updatedMe) {
                     currentUser.score = updatedMe.score;
-                    document.getElementById('userScore').textContent = currentUser.score || 0;
+                    document.getElementById('userScoreSmall').textContent = (currentUser.score || 0) + ' pontos';
+                    document.getElementById('sidebarScore').textContent = (currentUser.score || 0) + ' pontos';
                 }
             }, 3000);
+        }
+
+        // ========================================
+        // AJUSTES PARA DISPOSITIVOS MÓVEIS
+        // ========================================
+        
+        function ajustarParaMobile() {
+            // Prevenir zoom em inputs no iOS
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('touchstart', () => {
+                    input.style.fontSize = '16px';
+                });
+            });
+
+            // Ajustar altura da viewport para iOS
+            const setVh = () => {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            };
+
+            setVh();
+            window.addEventListener('resize', setVh);
         }
 
         // ========================================
@@ -1153,6 +1275,8 @@
         
         window.onload = async function() {
             console.log('🚀 Chat carregado');
+            
+            ajustarParaMobile();
             
             if (!carregarUsuario()) return;
             
@@ -1163,14 +1287,24 @@
             // Enter para enviar
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     sendMessage();
                 }
             });
-            
-            // Fechar modal com ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeRankingModal();
+
+            // Fechar menu ao arrastar
+            let touchStartX = 0;
+            document.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+            });
+
+            document.addEventListener('touchmove', (e) => {
+                const menu = document.getElementById('sidebarMenu');
+                if (menu.classList.contains('active')) {
+                    const touchX = e.touches[0].clientX;
+                    if (touchX > window.innerWidth - 50) {
+                        e.preventDefault();
+                    }
                 }
             });
         };
