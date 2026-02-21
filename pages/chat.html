@@ -202,8 +202,18 @@
             text-align: right;
         }
 
-        .message img, .message video {
+        .message img {
             max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            margin-top: 4px;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .message video {
+            max-width: 100%;
+            max-height: 300px;
             border-radius: 12px;
             margin-top: 4px;
         }
@@ -349,7 +359,48 @@
             transform: scale(0.95);
         }
 
-        /* ===== SIDEBAR OVERLAY (MENU LATERAL) ===== */
+        /* ===== MODAL DE IMAGEM ===== */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+        }
+
+        /* ===== SIDEBAR OVERLAY ===== */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -469,7 +520,7 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* ===== MODAL ===== */
+        /* ===== MODAL DE RANKING ===== */
         .modal {
             display: none;
             position: fixed;
@@ -608,7 +659,42 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ===== AJUSTES ESPECÍFICOS PARA iOS ===== */
+        /* ===== UPLOAD PROGRESS ===== */
+        .upload-progress {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 4000;
+            text-align: center;
+            display: none;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* ===== AJUSTES iOS ===== */
         @supports (-webkit-touch-callout: none) {
             body {
                 height: -webkit-fill-available;
@@ -777,12 +863,26 @@
         </div>
     </div>
 
+    <!-- Modal de Visualização de Imagem -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+        <img id="modalImage" src="" alt="Imagem ampliada">
+    </div>
+
+    <!-- Progresso de Upload -->
+    <div class="upload-progress" id="uploadProgress">
+        <p>Enviando imagem...</p>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
     <!-- Input de arquivo oculto -->
     <input type="file" id="fileInput" style="display: none;">
 
     <script>
         // ========================================
-        // CONFIGURAÇÕES DO JSONBIN.IO
+        // CONFIGURAÇÕES
         // ========================================
         const CONFIG = {
             API_KEY: '$2a$10$gHdA8KAK/9HnnagDiMTlHeBUzNo9cWC0lR8EL0IaUpJg5ChpGiz/i',
@@ -804,7 +904,7 @@
         let pollingInterval = null;
 
         // ========================================
-        // FUNÇÕES DA API
+        // FUNÇÕES DA API JSONBIN
         // ========================================
         
         async function getData() {
@@ -884,6 +984,58 @@
             }
             
             return await saveData(data);
+        }
+
+        // ========================================
+        // FUNÇÕES DE UPLOAD PARA IMGUR (GRATUITO)
+        // ========================================
+        
+        async function uploadToImgur(file) {
+            return new Promise((resolve, reject) => {
+                // Mostrar progresso
+                document.getElementById('uploadProgress').classList.add('active');
+                
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                // Simular progresso (já que fetch não tem progresso nativo)
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 10;
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    if (progress >= 100) clearInterval(interval);
+                }, 100);
+                
+                // Usar API do Imgur (gratuita, sem necessidade de cadastro para uploads anônimos)
+                fetch('https://api.imgur.com/3/image', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Client-ID c76d3c1c5b4d4c4' // Client ID público do Imgur
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    clearInterval(interval);
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 500);
+                    
+                    if (data.success) {
+                        resolve(data.data.link);
+                    } else {
+                        reject(new Error('Erro no upload para Imgur'));
+                    }
+                })
+                .catch(error => {
+                    clearInterval(interval);
+                    document.getElementById('uploadProgress').classList.remove('active');
+                    reject(error);
+                });
+            });
         }
 
         // ========================================
@@ -969,7 +1121,7 @@
                         content = `<p>${escapeHtml(msg.content)}</p>`;
                         break;
                     case 'image':
-                        content = `<img src="${msg.content}" alt="Imagem" style="max-width: 100%; border-radius: 10px;">`;
+                        content = `<img src="${msg.content}" alt="Imagem" onclick="openImageModal('${msg.content}')">`;
                         break;
                     case 'video':
                         content = `<video controls src="${msg.content}" style="max-width: 100%; border-radius: 10px;"></video>`;
@@ -1018,23 +1170,136 @@
         }
 
         // ========================================
-        // FUNÇÃO DE PONTUAÇÃO (PARA O PARCEIRO)
+        // FUNÇÕES DE MÍDIA CORRIGIDAS
         // ========================================
+        
+        async function sendImage() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                try {
+                    // Upload para Imgur
+                    const imageUrl = await uploadToImgur(file);
+                    
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'image',
+                        content: imageUrl // Agora é uma URL pública
+                    };
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                    
+                } catch (error) {
+                    console.error('Erro no upload:', error);
+                    alert('Erro ao enviar imagem. Tente novamente.');
+                }
+            };
+            input.click();
+        }
+
+        async function sendVideo() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'video/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                try {
+                    // Converter vídeo para base64 (por enquanto)
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        const message = {
+                            userId: currentUser.id,
+                            userName: currentUser.nome,
+                            userPhoto: currentUser.foto,
+                            type: 'video',
+                            content: event.target.result
+                        };
+                        
+                        await addMessage(message);
+                        messages.push(message);
+                        atualizarMensagens();
+                    };
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Erro ao enviar vídeo:', error);
+                    alert('Erro ao enviar vídeo. Tente novamente.');
+                }
+            };
+            input.click();
+        }
+
+        async function sendAudio() {
+            const input = document.getElementById('fileInput');
+            input.accept = 'audio/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Arquivo muito grande. Máximo 10MB');
+                    return;
+                }
+                
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        const message = {
+                            userId: currentUser.id,
+                            userName: currentUser.nome,
+                            userPhoto: currentUser.foto,
+                            type: 'audio',
+                            content: event.target.result
+                        };
+                        
+                        await addMessage(message);
+                        messages.push(message);
+                        atualizarMensagens();
+                    };
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    console.error('Erro ao enviar áudio:', error);
+                    alert('Erro ao enviar áudio. Tente novamente.');
+                }
+            };
+            input.click();
+        }
+
+        // ========================================
+        // FUNÇÕES DE PONTUAÇÃO
+        // ========================================
+        
         async function pontuarParceiro(points, reason) {
             if (!partnerUser) {
                 alert('Parceiro não encontrado!');
                 return;
             }
 
-            // Feedback tátil (se disponível)
+            // Feedback tátil
             if (window.navigator && window.navigator.vibrate) {
                 window.navigator.vibrate(50);
             }
             
-            // Registrar pontuação para o PARCEIRO
             const score = {
-                userId: partnerUser.id, // ID do parceiro (quem RECEBE)
-                fromUserId: currentUser.id, // ID de quem DEU
+                userId: partnerUser.id,
+                fromUserId: currentUser.id,
                 points: points,
                 reason: reason
             };
@@ -1059,106 +1324,20 @@
         }
 
         // ========================================
-        // FUNÇÕES DE MÍDIA
-        // ========================================
-        
-        function sendImage() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const message = {
-                        userId: currentUser.id,
-                        userName: currentUser.nome,
-                        userPhoto: currentUser.foto,
-                        type: 'image',
-                        content: event.target.result
-                    };
-                    
-                    await addMessage(message);
-                    messages.push(message);
-                    atualizarMensagens();
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-
-        function sendVideo() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'video/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const message = {
-                        userId: currentUser.id,
-                        userName: currentUser.nome,
-                        userPhoto: currentUser.foto,
-                        type: 'video',
-                        content: event.target.result
-                    };
-                    
-                    await addMessage(message);
-                    messages.push(message);
-                    atualizarMensagens();
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-
-        function sendAudio() {
-            const input = document.getElementById('fileInput');
-            input.accept = 'audio/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const message = {
-                        userId: currentUser.id,
-                        userName: currentUser.nome,
-                        userPhoto: currentUser.foto,
-                        type: 'audio',
-                        content: event.target.result
-                    };
-                    
-                    await addMessage(message);
-                    messages.push(message);
-                    atualizarMensagens();
-                };
-                reader.readAsDataURL(file);
-            };
-            input.click();
-        }
-
-        // ========================================
         // FUNÇÕES DE INTERFACE
         // ========================================
         
+        function openImageModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         function toggleMenu() {
             document.getElementById('sidebarOverlay').classList.add('active');
             document.getElementById('sidebarMenu').classList.add('active');
@@ -1248,7 +1427,7 @@
         }
 
         // ========================================
-        // AJUSTES PARA DISPOSITIVOS MÓVEIS
+        // AJUSTES PARA MOBILE
         // ========================================
         
         function ajustarParaMobile() {
@@ -1289,22 +1468,6 @@
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     sendMessage();
-                }
-            });
-
-            // Fechar menu ao arrastar
-            let touchStartX = 0;
-            document.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-            });
-
-            document.addEventListener('touchmove', (e) => {
-                const menu = document.getElementById('sidebarMenu');
-                if (menu.classList.contains('active')) {
-                    const touchX = e.touches[0].clientX;
-                    if (touchX > window.innerWidth - 50) {
-                        e.preventDefault();
-                    }
                 }
             });
         };
