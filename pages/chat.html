@@ -94,7 +94,7 @@
             transition: background 0.3s;
         }
 
-        .menu-icon:hover {
+        .menu-icon:active {
             background: rgba(255,255,255,0.2);
         }
 
@@ -234,6 +234,98 @@
             }
         }
 
+        /* ===== EMOJI PICKER ===== */
+        .emoji-picker-container {
+            position: relative;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
+            padding: 16px;
+            z-index: 100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+
+        .emoji-picker.active {
+            display: block;
+        }
+
+        .emoji-categories {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .emoji-category {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .emoji-category.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .emoji-item {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .emoji-item:active {
+            background: #f0f0f0;
+            transform: scale(1.2);
+        }
+
+        .emoji-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f0f0f0;
+        }
+
+        .emoji-close:active {
+            background: #ddd;
+        }
+
         /* ===== ÁREA DE PONTUAÇÃO ===== */
         .scoring-area {
             background: white;
@@ -284,6 +376,7 @@
             border-top: 1px solid #eee;
             flex-shrink: 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            position: relative;
         }
 
         .input-actions {
@@ -307,12 +400,18 @@
             align-items: center;
             justify-content: center;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
         }
 
         .action-btn:active {
             background: #f0f0f0;
             color: #667eea;
             transform: scale(1.1);
+        }
+
+        .action-btn.active {
+            background: #f0f0f0;
+            color: #667eea;
         }
 
         .message-input-wrapper {
@@ -734,6 +833,10 @@
             .messages-area {
                 padding: 8px;
             }
+
+            .emoji-picker {
+                max-height: 200px;
+            }
         }
     </style>
     <!-- Font Awesome -->
@@ -796,9 +899,12 @@
             </button>
         </div>
 
-        <!-- Área de Input -->
+        <!-- Área de Input com Emojis -->
         <div class="message-input-area">
             <div class="input-actions">
+                <button class="action-btn" onclick="toggleEmojiPicker()" title="Emojis" id="emojiBtn">
+                    <i class="fas fa-smile"></i>
+                </button>
                 <button class="action-btn" onclick="sendImage()" title="Enviar imagem">
                     <i class="fas fa-image"></i>
                 </button>
@@ -816,6 +922,19 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Emoji Picker -->
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-categories" id="emojiCategories">
+            <button class="emoji-category active" onclick="showEmojiCategory('recentes')">🕒 Recentes</button>
+            <button class="emoji-category" onclick="showEmojiCategory('romanticos')">❤️ Românticos</button>
+            <button class="emoji-category" onclick="showEmojiCategory('carinhas')">😊 Carinhas</button>
+            <button class="emoji-category" onclick="showEmojiCategory('coracoes')">💕 Corações</button>
+            <button class="emoji-category" onclick="showEmojiCategory('presentes')">🎁 Presentes</button>
+        </div>
+        <div class="emoji-close" onclick="toggleEmojiPicker()">✕</div>
+        <div id="emojiGrid" class="emoji-grid"></div>
     </div>
 
     <!-- Sidebar Overlay e Menu -->
@@ -902,6 +1021,91 @@
         let partnerUser = null;
         let messages = [];
         let pollingInterval = null;
+        let emojiPickerActive = false;
+
+        // ========================================
+        // EMOJIS POR CATEGORIA
+        // ========================================
+        const EMOJIS = {
+            romanticos: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '⛔', '📵', '🔞', '☢️', '☣️', '⬆️', '↗️', '➡️', '↘️', '⬇️', '↙️', '⬅️', '↖️', '↕️', '↔️', '↩️', '↪️', '⤴️', '⤵️', '🔃', '🔄', '🔙', '🔚', '🔛', '🔜', '🔝', '🛐', '⚛️', '🕉️', '✡️', '☸️', '☯️', '✝️', '☦️', '☪️', '☮️', '🕎', '🔯'],
+            carinhas: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '☺️', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'],
+            coracoes: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐'],
+            presentes: ['🎁', '🎀', '🎈', '🎉', '🎊', '🥳', '🎂', '🍰', '🧁', '🍫', '🍬', '🍭', '🍮', '🍯', '🍼', '🥛', '☕', '🍵', '🍶', '🍾', '🍷', '🍸', '🍹', '🍺', '🍻', '🥂', '🥃', '🥤', '🧃', '🧉', '🧊', '🥢', '🍽️', '🍴', '🥄', '🔪', '🏺'],
+            recentes: []
+        };
+
+        // Carregar emojis recentes do localStorage
+        function carregarEmojisRecentes() {
+            const recentes = localStorage.getItem('emojisRecentes');
+            if (recentes) {
+                EMOJIS.recentes = JSON.parse(recentes);
+            }
+        }
+
+        function salvarEmojiRecente(emoji) {
+            // Remover se já existe
+            EMOJIS.recentes = EMOJIS.recentes.filter(e => e !== emoji);
+            // Adicionar no início
+            EMOJIS.recentes.unshift(emoji);
+            // Manter apenas 20 recentes
+            if (EMOJIS.recentes.length > 20) {
+                EMOJIS.recentes.pop();
+            }
+            localStorage.setItem('emojisRecentes', JSON.stringify(EMOJIS.recentes));
+        }
+
+        function mostrarEmojiGrid(categoria) {
+            const grid = document.getElementById('emojiGrid');
+            const emojis = EMOJIS[categoria] || [];
+            
+            grid.innerHTML = '';
+            emojis.forEach(emoji => {
+                const div = document.createElement('div');
+                div.className = 'emoji-item';
+                div.textContent = emoji;
+                div.onclick = () => inserirEmoji(emoji);
+                grid.appendChild(div);
+            });
+
+            // Atualizar botões de categoria
+            document.querySelectorAll('.emoji-category').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function showEmojiCategory(categoria) {
+            mostrarEmojiGrid(categoria);
+        }
+
+        function toggleEmojiPicker() {
+            const picker = document.getElementById('emojiPicker');
+            const btn = document.getElementById('emojiBtn');
+            
+            emojiPickerActive = !emojiPickerActive;
+            
+            if (emojiPickerActive) {
+                picker.classList.add('active');
+                btn.classList.add('active');
+                mostrarEmojiGrid('recentes');
+            } else {
+                picker.classList.remove('active');
+                btn.classList.remove('active');
+            }
+        }
+
+        function inserirEmoji(emoji) {
+            const input = document.getElementById('messageInput');
+            input.value += emoji;
+            input.focus();
+            
+            salvarEmojiRecente(emoji);
+            
+            // Atualizar grid se estiver na categoria recentes
+            if (document.querySelector('.emoji-category.active').textContent.includes('Recentes')) {
+                mostrarEmojiGrid('recentes');
+            }
+        }
 
         // ========================================
         // FUNÇÕES DA API JSONBIN
@@ -987,18 +1191,16 @@
         }
 
         // ========================================
-        // FUNÇÕES DE UPLOAD PARA IMGUR (GRATUITO)
+        // FUNÇÕES DE UPLOAD PARA IMGUR
         // ========================================
         
         async function uploadToImgur(file) {
             return new Promise((resolve, reject) => {
-                // Mostrar progresso
                 document.getElementById('uploadProgress').classList.add('active');
                 
                 const formData = new FormData();
                 formData.append('image', file);
                 
-                // Simular progresso (já que fetch não tem progresso nativo)
                 let progress = 0;
                 const interval = setInterval(() => {
                     progress += 10;
@@ -1006,11 +1208,10 @@
                     if (progress >= 100) clearInterval(interval);
                 }, 100);
                 
-                // Usar API do Imgur (gratuita, sem necessidade de cadastro para uploads anônimos)
                 fetch('https://api.imgur.com/3/image', {
                     method: 'POST',
                     headers: {
-                        'Authorization': 'Client-ID c76d3c1c5b4d4c4' // Client ID público do Imgur
+                        'Authorization': 'Client-ID c76d3c1c5b4d4c4'
                     },
                     body: formData
                 })
@@ -1052,7 +1253,6 @@
             try {
                 currentUser = JSON.parse(dados);
                 
-                // Atualizar elementos da UI
                 document.getElementById('userName').textContent = currentUser.nome;
                 document.getElementById('userScoreSmall').textContent = (currentUser.score || 0) + ' pontos';
                 document.getElementById('avatar').textContent = currentUser.nome.charAt(0).toUpperCase();
@@ -1071,7 +1271,6 @@
         async function carregarParceiro() {
             try {
                 const users = await getUsers();
-                // Encontrar o outro usuário (que não é o currentUser)
                 partnerUser = users.find(u => u.id !== currentUser.id);
                 
                 if (partnerUser) {
@@ -1170,7 +1369,7 @@
         }
 
         // ========================================
-        // FUNÇÕES DE MÍDIA CORRIGIDAS
+        // FUNÇÕES DE MÍDIA
         // ========================================
         
         async function sendImage() {
@@ -1186,7 +1385,6 @@
                 }
                 
                 try {
-                    // Upload para Imgur
                     const imageUrl = await uploadToImgur(file);
                     
                     const message = {
@@ -1194,7 +1392,7 @@
                         userName: currentUser.nome,
                         userPhoto: currentUser.foto,
                         type: 'image',
-                        content: imageUrl // Agora é uma URL pública
+                        content: imageUrl
                     };
                     
                     await addMessage(message);
@@ -1222,7 +1420,6 @@
                 }
                 
                 try {
-                    // Converter vídeo para base64 (por enquanto)
                     const reader = new FileReader();
                     reader.onload = async (event) => {
                         const message = {
@@ -1292,7 +1489,6 @@
                 return;
             }
 
-            // Feedback tátil
             if (window.navigator && window.navigator.vibrate) {
                 window.navigator.vibrate(50);
             }
@@ -1306,11 +1502,9 @@
             
             await addScore(score);
             
-            // Atualizar dados do parceiro
             partnerUser.score = (partnerUser.score || 0) + points;
             document.getElementById('partnerScore').textContent = partnerUser.score + ' pts';
             
-            // Mensagem de sistema
             const systemMessage = {
                 userId: 'system',
                 userName: 'Sistema',
@@ -1402,14 +1596,12 @@
             if (pollingInterval) clearInterval(pollingInterval);
             
             pollingInterval = setInterval(async () => {
-                // Atualizar mensagens
                 const novas = await getMessages();
                 if (novas.length > messages.length) {
                     messages = novas;
                     atualizarMensagens();
                 }
                 
-                // Atualizar pontuações
                 const users = await getUsers();
                 const updatedPartner = users.find(u => u.id === partnerUser?.id);
                 if (updatedPartner) {
@@ -1431,14 +1623,12 @@
         // ========================================
         
         function ajustarParaMobile() {
-            // Prevenir zoom em inputs no iOS
             document.querySelectorAll('input').forEach(input => {
                 input.addEventListener('touchstart', () => {
                     input.style.fontSize = '16px';
                 });
             });
 
-            // Ajustar altura da viewport para iOS
             const setVh = () => {
                 const vh = window.innerHeight * 0.01;
                 document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -1456,6 +1646,7 @@
             console.log('🚀 Chat carregado');
             
             ajustarParaMobile();
+            carregarEmojisRecentes();
             
             if (!carregarUsuario()) return;
             
@@ -1463,11 +1654,19 @@
             await carregarMensagens();
             startPolling();
             
-            // Enter para enviar
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     sendMessage();
+                }
+            });
+
+            // Fechar emoji picker ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (emojiPickerActive && 
+                    !e.target.closest('.emoji-picker') && 
+                    !e.target.closest('#emojiBtn')) {
+                    toggleEmojiPicker();
                 }
             });
         };
