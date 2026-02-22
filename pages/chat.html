@@ -345,6 +345,10 @@
             background: var(--error);
         }
 
+        .toast.info {
+            background: var(--text-secondary);
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -1249,7 +1253,7 @@
                             <i class="fas fa-camera"></i> Alterar
                         </div>
                     </div>
-                    <p style="color: var(--text-secondary); font-size: 12px; margin-top: 5px;">Clique na foto para alterar (máx 2MB)</p>
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-top: 5px;">Clique na foto para alterar</p>
                 </div>
 
                 <div class="profile-field">
@@ -1496,6 +1500,11 @@
             return data?.users || [];
         }
 
+        async function getUserById(id) {
+            const users = await getUsers();
+            return users.find(u => u.id === id);
+        }
+
         async function saveUser(user) {
             const data = await getData();
             if (!data) return false;
@@ -1503,9 +1512,14 @@
             const index = data.users.findIndex(u => u.id === user.id);
             if (index >= 0) {
                 data.users[index] = user;
+            } else {
+                user.id = Date.now();
+                user.dataCriacao = new Date().toISOString();
+                data.users.push(user);
             }
             
-            return await saveData(data);
+            const saved = await saveData(data);
+            return saved;
         }
 
         async function getMessages() {
@@ -1521,6 +1535,11 @@
             message.timestamp = new Date().toISOString();
             data.messages.push(message);
             
+            // Limitar a 100 mensagens
+            if (data.messages.length > 100) {
+                data.messages = data.messages.slice(-100);
+            }
+            
             return await saveData(data);
         }
 
@@ -1530,7 +1549,7 @@
             
             score.id = Date.now();
             score.timestamp = new Date().toISOString();
-            data.scores = data.scores || [];
+            if (!data.scores) data.scores = [];
             data.scores.push(score);
             
             const user = data.users.find(u => u.id === score.userId);
@@ -1539,6 +1558,69 @@
             }
             
             return await saveData(data);
+        }
+
+        // ========================================
+        // FUNÇÃO PARA REDIMENSIONAR IMAGEM
+        // ========================================
+        function redimensionarImagem(file, maxLargura = 300, maxAltura = 300, qualidade = 0.8) {
+            return new Promise((resolve, reject) => {
+                // Criar um leitor de arquivo
+                const reader = new FileReader();
+                
+                reader.onload = (event) => {
+                    // Criar uma imagem
+                    const img = new Image();
+                    img.src = event.target.result;
+                    
+                    img.onload = () => {
+                        // Criar um canvas
+                        const canvas = document.createElement('canvas');
+                        let largura = img.width;
+                        let altura = img.height;
+                        
+                        // Calcular novas dimensões mantendo a proporção
+                        if (largura > altura) {
+                            if (largura > maxLargura) {
+                                altura = Math.round(altura * (maxLargura / largura));
+                                largura = maxLargura;
+                            }
+                        } else {
+                            if (altura > maxAltura) {
+                                largura = Math.round(largura * (maxAltura / altura));
+                                altura = maxAltura;
+                            }
+                        }
+                        
+                        // Garantir que não fique menor que 100px
+                        if (largura < 100) largura = 100;
+                        if (altura < 100) altura = 100;
+                        
+                        // Definir dimensões do canvas
+                        canvas.width = largura;
+                        canvas.height = altura;
+                        
+                        // Desenhar imagem redimensionada no canvas
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, largura, altura);
+                        
+                        // Converter canvas para Base64 com qualidade reduzida
+                        const imagemRedimensionada = canvas.toDataURL('image/jpeg', qualidade);
+                        
+                        resolve(imagemRedimensionada);
+                    };
+                    
+                    img.onerror = (error) => {
+                        reject(error);
+                    };
+                };
+                
+                reader.onerror = (error) => {
+                    reject(error);
+                };
+                
+                reader.readAsDataURL(file);
+            });
         }
 
         // ========================================
@@ -1642,27 +1724,30 @@
             currentUser.nome = novoNome;
             
             // Atualizar no banco
-            const users = await getUsers();
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            if (userIndex >= 0) {
-                users[userIndex].nome = novoNome;
-                const messages = await getMessages();
-                await saveData({ users, messages, scores: [] });
-            }
-
-            // Atualizar localStorage
-            localStorage.setItem('usuario', JSON.stringify(currentUser));
-
-            // Atualizar UI
-            document.getElementById('userName').textContent = novoNome;
-            document.getElementById('sidebarName').textContent = novoNome;
+            const data = await getData();
+            if (!data) return;
             
-            closeProfileModal();
-            showToast('Perfil atualizado com sucesso!', 'success');
+            const userIndex = data.users.findIndex(u => u.id === currentUser.id);
+            if (userIndex >= 0) {
+                data.users[userIndex].nome = novoNome;
+                const saved = await saveData(data);
+                
+                if (saved) {
+                    // Atualizar localStorage
+                    localStorage.setItem('usuario', JSON.stringify(currentUser));
+                    
+                    // Atualizar UI
+                    document.getElementById('userName').textContent = novoNome;
+                    document.getElementById('sidebarName').textContent = novoNome;
+                    
+                    closeProfileModal();
+                    showToast('Perfil atualizado com sucesso!', 'success');
+                }
+            }
         }
 
         // ========================================
-        // FUNÇÃO DE UPLOAD DE FOTO (BASE64)
+        // FUNÇÃO DE UPLOAD DE FOTO (COM REDIMENSIONAMENTO)
         // ========================================
 
         document.getElementById('profilePhotoInput').addEventListener('change', async function(e) {
@@ -1675,27 +1760,25 @@
                 return;
             }
             
-            // Validar tamanho (2MB máximo)
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Imagem muito grande. Máximo 2MB', 'error');
+            // Validar tamanho original (máx 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 10MB', 'error');
                 return;
             }
             
             // Mostrar progresso
             document.getElementById('uploadProgress').classList.add('active');
+            document.getElementById('progressFill').style.width = '30%';
             
             try {
-                // Converter para Base64
-                const reader = new FileReader();
+                // Redimensionar a imagem para 300x300 (qualidade 0.7)
+                showToast('Redimensionando imagem...', 'info');
+                const imagemRedimensionada = await redimensionarImagem(file, 300, 300, 0.7);
                 
-                const base64Image = await new Promise((resolve, reject) => {
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
-                    reader.readAsDataURL(file);
-                });
+                document.getElementById('progressFill').style.width = '70%';
                 
                 // Atualizar usuário atual
-                currentUser.foto = base64Image;
+                currentUser.foto = imagemRedimensionada;
                 
                 // Buscar dados atuais do JSONBin
                 const data = await getData();
@@ -1704,8 +1787,10 @@
                 // Atualizar usuário no array
                 const userIndex = data.users.findIndex(u => u.id === currentUser.id);
                 if (userIndex >= 0) {
-                    data.users[userIndex].foto = base64Image;
+                    data.users[userIndex].foto = imagemRedimensionada;
                 }
+                
+                document.getElementById('progressFill').style.width = '90%';
                 
                 // Salvar no JSONBin
                 const saved = await saveData(data);
@@ -1717,6 +1802,13 @@
                     // Atualizar UI
                     atualizarAvatarNaUI(currentUser);
                     
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 500);
+                    
                     showToast('Foto de perfil atualizada com sucesso!', 'success');
                 } else {
                     throw new Error('Erro ao salvar no banco de dados');
@@ -1725,7 +1817,6 @@
             } catch (error) {
                 console.error('Erro detalhado:', error);
                 showToast('Erro ao atualizar foto. Tente novamente.', 'error');
-            } finally {
                 document.getElementById('uploadProgress').classList.remove('active');
                 document.getElementById('progressFill').style.width = '0%';
             }
@@ -1879,7 +1970,7 @@
         }
 
         // ========================================
-        // FUNÇÕES DE MÍDIA
+        // FUNÇÕES DE MÍDIA (COM REDIMENSIONAMENTO)
         // ========================================
         
         async function sendImage() {
@@ -1894,30 +1985,41 @@
                     return;
                 }
                 
+                // Mostrar progresso
+                document.getElementById('uploadProgress').classList.add('active');
+                document.getElementById('progressFill').style.width = '30%';
+                
                 try {
-                    // Converter para Base64
-                    const reader = new FileReader();
-                    const base64 = await new Promise((resolve, reject) => {
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(file);
-                    });
+                    // Redimensionar para 1024px no máximo (qualidade 0.8)
+                    showToast('Processando imagem...', 'info');
+                    const imagemRedimensionada = await redimensionarImagem(file, 1024, 1024, 0.8);
+                    
+                    document.getElementById('progressFill').style.width = '70%';
                     
                     const message = {
                         userId: currentUser.id,
                         userName: currentUser.nome,
                         userPhoto: currentUser.foto,
                         type: 'image',
-                        content: base64
+                        content: imagemRedimensionada
                     };
                     
                     await addMessage(message);
                     messages.push(message);
                     atualizarMensagens();
                     
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 500);
+                    
                 } catch (error) {
                     console.error('Erro ao enviar imagem:', error);
                     showToast('Erro ao enviar imagem. Tente novamente.', 'error');
+                    document.getElementById('uploadProgress').classList.remove('active');
+                    document.getElementById('progressFill').style.width = '0%';
                 }
             };
             input.click();
@@ -1935,25 +2037,46 @@
                     return;
                 }
                 
+                // Mostrar progresso
+                document.getElementById('uploadProgress').classList.add('active');
+                document.getElementById('progressFill').style.width = '30%';
+                
                 try {
+                    showToast('Processando vídeo...', 'info');
+                    
                     const reader = new FileReader();
-                    reader.onload = async (event) => {
-                        const message = {
-                            userId: currentUser.id,
-                            userName: currentUser.nome,
-                            userPhoto: currentUser.foto,
-                            type: 'video',
-                            content: event.target.result
-                        };
-                        
-                        await addMessage(message);
-                        messages.push(message);
-                        atualizarMensagens();
+                    const videoBase64 = await new Promise((resolve, reject) => {
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    document.getElementById('progressFill').style.width = '70%';
+                    
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'video',
+                        content: videoBase64
                     };
-                    reader.readAsDataURL(file);
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                    
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 500);
+                    
                 } catch (error) {
                     console.error('Erro ao enviar vídeo:', error);
                     showToast('Erro ao enviar vídeo. Tente novamente.', 'error');
+                    document.getElementById('uploadProgress').classList.remove('active');
+                    document.getElementById('progressFill').style.width = '0%';
                 }
             };
             input.click();
@@ -1971,25 +2094,46 @@
                     return;
                 }
                 
+                // Mostrar progresso
+                document.getElementById('uploadProgress').classList.add('active');
+                document.getElementById('progressFill').style.width = '30%';
+                
                 try {
+                    showToast('Processando áudio...', 'info');
+                    
                     const reader = new FileReader();
-                    reader.onload = async (event) => {
-                        const message = {
-                            userId: currentUser.id,
-                            userName: currentUser.nome,
-                            userPhoto: currentUser.foto,
-                            type: 'audio',
-                            content: event.target.result
-                        };
-                        
-                        await addMessage(message);
-                        messages.push(message);
-                        atualizarMensagens();
+                    const audioBase64 = await new Promise((resolve, reject) => {
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    document.getElementById('progressFill').style.width = '70%';
+                    
+                    const message = {
+                        userId: currentUser.id,
+                        userName: currentUser.nome,
+                        userPhoto: currentUser.foto,
+                        type: 'audio',
+                        content: audioBase64
                     };
-                    reader.readAsDataURL(file);
+                    
+                    await addMessage(message);
+                    messages.push(message);
+                    atualizarMensagens();
+                    
+                    document.getElementById('progressFill').style.width = '100%';
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        document.getElementById('progressFill').style.width = '0%';
+                    }, 500);
+                    
                 } catch (error) {
                     console.error('Erro ao enviar áudio:', error);
                     showToast('Erro ao enviar áudio. Tente novamente.', 'error');
+                    document.getElementById('uploadProgress').classList.remove('active');
+                    document.getElementById('progressFill').style.width = '0%';
                 }
             };
             input.click();
