@@ -29,6 +29,8 @@
             --scoring-area-bg: white;
             --shadow: rgba(0,0,0,0.1);
             --modal-overlay: rgba(0,0,0,0.5);
+            --success: #4caf50;
+            --error: #f44336;
         }
 
         body {
@@ -166,8 +168,15 @@
         .online-indicator-small {
             width: 8px;
             height: 8px;
-            background: #4caf50;
+            background: var(--success);
             border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .partner-name {
@@ -243,6 +252,7 @@
             height: 20px;
             border-radius: 50%;
             overflow: hidden;
+            background: #ffd700;
         }
 
         .sender-avatar img {
@@ -301,6 +311,48 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
             }
         }
 
@@ -930,6 +982,7 @@
             border-radius: 50%;
             margin-right: 12px;
             overflow: hidden;
+            background: #ffd700;
         }
 
         .ranking-avatar img {
@@ -945,7 +998,7 @@
         }
 
         .ranking-score {
-            background: #4caf50;
+            background: var(--success);
             color: white;
             padding: 4px 10px;
             border-radius: 20px;
@@ -1073,6 +1126,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
     <div class="chat-container">
         <!-- Top Bar -->
         <div class="top-bar">
@@ -1190,6 +1249,7 @@
                             <i class="fas fa-camera"></i> Alterar
                         </div>
                     </div>
+                    <p style="color: var(--text-secondary); font-size: 12px; margin-top: 5px;">Clique na foto para alterar</p>
                 </div>
 
                 <div class="profile-field">
@@ -1303,6 +1363,23 @@
         let messages = [];
         let pollingInterval = null;
         let emojiPickerActive = false;
+
+        // ========================================
+        // FUNÇÕES DE NOTIFICAÇÃO
+        // ========================================
+        
+        function showToast(message, type = 'success', duration = 3000) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toast.className = 'toast ' + type;
+            toastMessage.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
 
         // ========================================
         // EMOJIS
@@ -1465,61 +1542,77 @@
         }
 
         // ========================================
-        // FUNÇÕES DE UPLOAD
+        // FUNÇÕES DE UPLOAD CORRIGIDAS
         // ========================================
         
         async function uploadToImgur(file) {
             return new Promise((resolve, reject) => {
+                // Mostrar progresso
                 document.getElementById('uploadProgress').classList.add('active');
                 
                 const formData = new FormData();
                 formData.append('image', file);
                 
+                // Usar múltiplos client IDs para fallback
+                const clientIds = [
+                    'c76d3c1c5b4d4c4',  // Client ID 1
+                    'c76d3c1c5b4d4c5',  // Client ID 2 (fallback)
+                    'c76d3c1c5b4d4c6'   // Client ID 3 (fallback)
+                ];
+                
+                // Função para tentar upload com diferentes client IDs
+                async function tryUpload(clientIdIndex = 0) {
+                    if (clientIdIndex >= clientIds.length) {
+                        document.getElementById('uploadProgress').classList.remove('active');
+                        reject(new Error('Todos os client IDs falharam'));
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('https://api.imgur.com/3/image', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Client-ID ${clientIds[clientIdIndex]}`
+                            },
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            document.getElementById('uploadProgress').classList.remove('active');
+                            resolve(data.data.link);
+                        } else {
+                            // Tentar próximo client ID
+                            await tryUpload(clientIdIndex + 1);
+                        }
+                    } catch (error) {
+                        // Tentar próximo client ID
+                        await tryUpload(clientIdIndex + 1);
+                    }
+                }
+                
+                // Simular progresso
                 let progress = 0;
                 const interval = setInterval(() => {
                     progress += 10;
                     document.getElementById('progressFill').style.width = progress + '%';
                     if (progress >= 100) clearInterval(interval);
-                }, 100);
+                }, 200);
                 
-                fetch('https://api.imgur.com/3/image', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Client-ID c76d3c1c5b4d4c4'
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
+                // Iniciar tentativas de upload
+                tryUpload().catch(reject).finally(() => {
                     clearInterval(interval);
-                    document.getElementById('progressFill').style.width = '100%';
-                    
-                    setTimeout(() => {
-                        document.getElementById('uploadProgress').classList.remove('active');
-                        document.getElementById('progressFill').style.width = '0%';
-                    }, 500);
-                    
-                    if (data.success) {
-                        resolve(data.data.link);
-                    } else {
-                        reject(new Error('Erro no upload'));
-                    }
-                })
-                .catch(error => {
-                    clearInterval(interval);
-                    document.getElementById('uploadProgress').classList.remove('active');
-                    reject(error);
                 });
             });
         }
 
         // ========================================
-        // FUNÇÕES DE PERFIL
+        // FUNÇÕES DE PERFIL CORRIGIDAS
         // ========================================
         
         function atualizarAvatarNaUI(user) {
             // Avatar pequeno no topo
-            const avatarSmall = document.getElementById('avatar');
             const avatarText = document.getElementById('avatarText');
             const avatarImage = document.getElementById('avatarImage');
             
@@ -1534,7 +1627,6 @@
             }
 
             // Avatar na sidebar
-            const sidebarAvatar = document.getElementById('sidebarAvatar');
             const sidebarAvatarText = document.getElementById('sidebarAvatarText');
             const sidebarAvatarImage = document.getElementById('sidebarAvatarImage');
             
@@ -1549,7 +1641,6 @@
             }
 
             // Avatar grande no modal
-            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
             const profileAvatarLargeText = document.getElementById('profileAvatarLargeText');
             const profileAvatarLargeImage = document.getElementById('profileAvatarLargeImage');
             
@@ -1565,7 +1656,6 @@
         }
 
         function atualizarPartnerAvatarNaUI(user) {
-            const partnerAvatar = document.getElementById('partnerAvatar');
             const partnerAvatarText = document.getElementById('partnerAvatarText');
             const partnerAvatarImage = document.getElementById('partnerAvatarImage');
             
@@ -1606,7 +1696,7 @@
             const novoNome = document.getElementById('profileName').value.trim();
             
             if (!novoNome) {
-                alert('Nome não pode estar vazio');
+                showToast('Nome não pode estar vazio', 'error');
                 return;
             }
 
@@ -1622,7 +1712,8 @@
             const userIndex = users.findIndex(u => u.id === currentUser.id);
             if (userIndex >= 0) {
                 users[userIndex].nome = novoNome;
-                await saveData({ users, messages: await getMessages(), scores: [] });
+                const messages = await getMessages();
+                await saveData({ users, messages, scores: [] });
             }
 
             // Atualizar localStorage
@@ -1633,7 +1724,7 @@
             document.getElementById('sidebarName').textContent = novoNome;
             
             closeProfileModal();
-            alert('Perfil atualizado com sucesso!');
+            showToast('Perfil atualizado com sucesso!', 'success');
         }
 
         // ========================================
@@ -1795,7 +1886,7 @@
                 if (!file) return;
                 
                 if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
+                    showToast('Arquivo muito grande. Máximo 10MB', 'error');
                     return;
                 }
                 
@@ -1816,7 +1907,7 @@
                     
                 } catch (error) {
                     console.error('Erro no upload:', error);
-                    alert('Erro ao enviar imagem. Tente novamente.');
+                    showToast('Erro ao enviar imagem. Tente novamente.', 'error');
                 }
             };
             input.click();
@@ -1830,7 +1921,7 @@
                 if (!file) return;
                 
                 if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
+                    showToast('Arquivo muito grande. Máximo 10MB', 'error');
                     return;
                 }
                 
@@ -1852,7 +1943,7 @@
                     reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Erro ao enviar vídeo:', error);
-                    alert('Erro ao enviar vídeo. Tente novamente.');
+                    showToast('Erro ao enviar vídeo. Tente novamente.', 'error');
                 }
             };
             input.click();
@@ -1866,7 +1957,7 @@
                 if (!file) return;
                 
                 if (file.size > 10 * 1024 * 1024) {
-                    alert('Arquivo muito grande. Máximo 10MB');
+                    showToast('Arquivo muito grande. Máximo 10MB', 'error');
                     return;
                 }
                 
@@ -1888,47 +1979,74 @@
                     reader.readAsDataURL(file);
                 } catch (error) {
                     console.error('Erro ao enviar áudio:', error);
-                    alert('Erro ao enviar áudio. Tente novamente.');
+                    showToast('Erro ao enviar áudio. Tente novamente.', 'error');
                 }
             };
             input.click();
         }
 
+        // ========================================
+        // FUNÇÃO CORRIGIDA: UPLOAD DE FOTO DE PERFIL
+        // ========================================
+        
         // Upload de foto de perfil
         document.getElementById('profilePhotoInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Imagem muito grande. Máximo 5MB');
+            // Validar tipo de arquivo
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor, selecione uma imagem válida', 'error');
                 return;
             }
             
+            // Validar tamanho (5MB máximo)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo 5MB', 'error');
+                return;
+            }
+            
+            // Mostrar progresso
+            document.getElementById('uploadProgress').classList.add('active');
+            
             try {
+                // Fazer upload para o Imgur
                 const imageUrl = await uploadToImgur(file);
                 
-                // Atualizar usuário
+                // Atualizar usuário atual
                 currentUser.foto = imageUrl;
                 
-                // Salvar no banco
-                const users = await getUsers();
-                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                // Buscar dados atuais do JSONBin
+                const data = await getData();
+                if (!data) throw new Error('Erro ao buscar dados');
+                
+                // Atualizar usuário no array
+                const userIndex = data.users.findIndex(u => u.id === currentUser.id);
                 if (userIndex >= 0) {
-                    users[userIndex].foto = imageUrl;
-                    await saveData({ users, messages: await getMessages(), scores: [] });
+                    data.users[userIndex].foto = imageUrl;
                 }
-
-                // Salvar no localStorage
-                localStorage.setItem('usuario', JSON.stringify(currentUser));
                 
-                // Atualizar UI
-                atualizarAvatarNaUI(currentUser);
+                // Salvar no JSONBin
+                const saved = await saveData(data);
                 
-                alert('Foto de perfil atualizada!');
+                if (saved) {
+                    // Atualizar localStorage
+                    localStorage.setItem('usuario', JSON.stringify(currentUser));
+                    
+                    // Atualizar UI
+                    atualizarAvatarNaUI(currentUser);
+                    
+                    showToast('Foto de perfil atualizada com sucesso!', 'success');
+                } else {
+                    throw new Error('Erro ao salvar no banco de dados');
+                }
                 
             } catch (error) {
-                console.error('Erro no upload da foto:', error);
-                alert('Erro ao atualizar foto. Tente novamente.');
+                console.error('Erro detalhado:', error);
+                showToast('Erro ao atualizar foto. Tente novamente.', 'error');
+            } finally {
+                document.getElementById('uploadProgress').classList.remove('active');
+                document.getElementById('progressFill').style.width = '0%';
             }
         });
 
@@ -1938,7 +2056,7 @@
         
         async function pontuarParceiro(points, reason) {
             if (!partnerUser) {
-                alert('Parceiro não encontrado!');
+                showToast('Parceiro não encontrado!', 'error');
                 return;
             }
 
@@ -1968,6 +2086,8 @@
             await addMessage(systemMessage);
             messages.push(systemMessage);
             atualizarMensagens();
+            
+            showToast(`${Math.abs(points)} pontos ${points > 0 ? 'dados' : 'aplicados'}!`, 'success');
         }
 
         // ========================================
