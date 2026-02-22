@@ -13,7 +13,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* ===== VARIÁVEIS DE TEMA ===== */
         :root {
             --bg-gradient: linear-gradient(135deg, #667eea, #764ba2);
             --bg-chat: white;
@@ -59,7 +58,6 @@
             position: relative;
         }
 
-        /* ===== TOP BAR ===== */
         .top-bar {
             background: var(--bg-gradient);
             color: white;
@@ -145,7 +143,6 @@
             border: 1px solid white;
         }
 
-        /* ===== PARTNER BAR ===== */
         .partner-bar {
             background: var(--partner-bar-bg);
             padding: 8px 16px;
@@ -212,7 +209,6 @@
             font-size: 13px;
         }
 
-        /* ===== ÁREA DE MENSAGENS ===== */
         .messages-area {
             flex: 1;
             overflow-y: auto;
@@ -333,7 +329,6 @@
             }
         }
 
-        /* ===== TOAST NOTIFICATION ===== */
         .toast {
             position: fixed;
             top: 20px;
@@ -383,7 +378,6 @@
             }
         }
 
-        /* ===== EMOJI PICKER ===== */
         .emoji-picker {
             position: absolute;
             bottom: 70px;
@@ -464,7 +458,6 @@
             background: rgba(128,128,128,0.2);
         }
 
-        /* ===== ÁREA DE PONTUAÇÃO ===== */
         .scoring-area {
             background: var(--scoring-area-bg);
             padding: 12px;
@@ -504,7 +497,6 @@
             color: white;
         }
 
-        /* ===== ÁREA DE INPUT ===== */
         .message-input-area {
             background: var(--scoring-area-bg);
             padding: 12px;
@@ -596,7 +588,6 @@
             transform: scale(0.95);
         }
 
-        /* ===== MODAL DE PERFIL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -619,7 +610,7 @@
             background: var(--partner-bar-bg);
             border-radius: 20px;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
             animation: slideUp 0.3s;
@@ -659,7 +650,6 @@
             padding: 20px;
         }
 
-        /* ===== EDITOR DE PERFIL ===== */
         .profile-avatar-editor {
             text-align: center;
             margin-bottom: 30px;
@@ -762,7 +752,6 @@
             transform: scale(0.98);
         }
 
-        /* ===== MODAL DE NOTIFICAÇÕES ===== */
         .notificacoes-modal {
             display: none;
             position: fixed;
@@ -837,7 +826,6 @@
             transform: scale(1.05);
         }
 
-        /* ===== MODAL DE IMAGEM ===== */
         .image-modal {
             display: none;
             position: fixed;
@@ -878,7 +866,6 @@
             border-radius: 50%;
         }
 
-        /* ===== SIDEBAR ===== */
         .sidebar-overlay {
             position: fixed;
             top: 0;
@@ -1005,7 +992,6 @@
             background: rgba(255,255,255,0.1);
         }
 
-        /* ===== RANKING MODAL ===== */
         .ranking-modal {
             display: none;
             position: fixed;
@@ -1108,7 +1094,6 @@
             font-weight: 600;
         }
 
-        /* ===== UPLOAD PROGRESS ===== */
         .upload-progress {
             position: fixed;
             top: 50%;
@@ -1143,7 +1128,6 @@
             transition: width 0.3s;
         }
 
-        /* ===== EMPTY STATE ===== */
         .empty-state {
             text-align: center;
             color: var(--text-secondary);
@@ -1156,7 +1140,6 @@
             color: #ddd;
         }
 
-        /* ===== LOADING ===== */
         .loading {
             text-align: center;
             color: var(--text-secondary);
@@ -1178,7 +1161,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ===== AJUSTES iOS ===== */
         @supports (-webkit-touch-callout: none) {
             body {
                 height: -webkit-fill-available;
@@ -1189,7 +1171,6 @@
             }
         }
 
-        /* ===== ORIENTAÇÃO PAISAGEM ===== */
         @media (orientation: landscape) and (max-height: 500px) {
             .top-bar {
                 padding: 8px 16px;
@@ -1417,6 +1398,10 @@
                 <i class="fas fa-trophy"></i>
                 <span>Ranking</span>
             </button>
+            <button class="sidebar-menu-item" onclick="abrirJogoDados(); closeMenu()">
+                <i class="fas fa-dice"></i>
+                <span>Dados do Amor</span>
+            </button>
             <button class="sidebar-menu-item" onclick="abrirConfiguracoesNotificacoes(); closeMenu()">
                 <i class="fas fa-bell"></i>
                 <span>Notificações</span>
@@ -1440,6 +1425,99 @@
                     <div class="loading-spinner"></div>
                     <p>Carregando ranking...</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do Jogo dos Dados -->
+    <div class="modal" id="jogoDadosModal" onclick="if(event.target === this) fecharJogoDados()">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-dice"></i> Dados do Amor 🎲</h2>
+                <span class="modal-close" onclick="fecharJogoDados()">&times;</span>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                
+                <!-- Área dos dados -->
+                <div style="display: flex; justify-content: center; gap: 30px; margin: 30px 0; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div id="dado1" style="width: 100px; height: 100px; background: linear-gradient(135deg, #ff6b6b, #ff4b6e); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 10px;">
+                            ❤️
+                        </div>
+                        <span style="font-weight: bold; color: var(--text-primary);">Dado 1</span>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <div id="dado2" style="width: 100px; height: 100px; background: linear-gradient(135deg, #ff6b6b, #ff4b6e); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.2); margin-bottom: 10px;">
+                            💕
+                        </div>
+                        <span style="font-weight: bold; color: var(--text-primary);">Dado 2</span>
+                    </div>
+                </div>
+                
+                <!-- Resultado do desafio -->
+                <div id="desafioResultado" style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 24px; font-weight: bold; color: var(--text-primary); min-height: 100px; display: flex; align-items: center; justify-content: center;">
+                    🎲 Clique em "Rolar Dados" para começar!
+                </div>
+                
+                <!-- Histórico de desafios -->
+                <div style="margin: 20px 0; text-align: left; max-height: 150px; overflow-y: auto; border: 1px solid var(--message-received-border); border-radius: 10px; padding: 10px;">
+                    <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--text-primary);">📜 Últimos desafios:</h3>
+                    <div id="historicoDesafios" style="font-size: 13px; color: var(--text-secondary);">
+                        <p style="text-align: center;">Nenhum desafio ainda</p>
+                    </div>
+                </div>
+                
+                <!-- Botões de ação -->
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn-save" onclick="rolarDados()" style="flex: 1; max-width: 200px;">
+                        <i class="fas fa-dice"></i> Rolar Dados
+                    </button>
+                    <button class="btn-save" onclick="rolarDadosPersonalizado()" style="flex: 1; max-width: 200px; background: linear-gradient(135deg, #ff6b6b, #ff4b6e);">
+                        <i class="fas fa-random"></i> Modo Surpresa
+                    </button>
+                    <button class="btn-save" onclick="adicionarDesafioPersonalizado()" style="flex: 1; max-width: 200px; background: linear-gradient(135deg, #4caf50, #45a049);">
+                        <i class="fas fa-plus"></i> Novo Desafio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar desafio personalizado -->
+    <div class="modal" id="novoDesafioModal" onclick="if(event.target === this) fecharNovoDesafioModal()">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Novo Desafio</h2>
+                <span class="modal-close" onclick="fecharNovoDesafioModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; color: var(--text-secondary);">Crie seu próprio desafio personalizado:</p>
+                
+                <div class="profile-field">
+                    <label>Tipo de desafio:</label>
+                    <select id="tipoDesafioPersonalizado" style="width: 100%; padding: 12px; border: 2px solid var(--input-border); border-radius: 10px; background: var(--input-bg); color: var(--text-primary);">
+                        <option value="carinho">💕 Carinho</option>
+                        <option value="romantico">💘 Romântico</option>
+                        <option value="divertido">😄 Divertido</option>
+                        <option value="ousado">🔥 Ousado</option>
+                        <option value="conversa">💬 Conversa</option>
+                    </select>
+                </div>
+                
+                <div class="profile-field">
+                    <label>Desafio:</label>
+                    <input type="text" id="desafioPersonalizado" placeholder="Ex: Faça uma massagem...">
+                </div>
+                
+                <div class="profile-field">
+                    <label>Complemento (opcional):</label>
+                    <input type="text" id="complementoPersonalizado" placeholder="Ex: nas costas por 2 minutos">
+                </div>
+                
+                <button class="btn-save" onclick="salvarDesafioPersonalizado()">
+                    <i class="fas fa-save"></i> Salvar Desafio
+                </button>
             </div>
         </div>
     </div>
@@ -1492,12 +1570,10 @@
         // FUNÇÕES DE NOTIFICAÇÃO
         // ========================================
         
-        // Verificar suporte a notificações
         function verificarSuporteNotificacoes() {
             return 'Notification' in window;
         }
 
-        // Solicitar permissão
         async function solicitarPermissaoNotificacoes() {
             if (!verificarSuporteNotificacoes()) {
                 showToast('Seu navegador não suporta notificações', 'warning');
@@ -1533,7 +1609,6 @@
             }
         }
 
-        // Enviar notificação
         function enviarNotificacao(titulo, corpo, icone = null) {
             if (!notificacoesAtivadas || Notification.permission !== 'granted') return;
 
@@ -1543,16 +1618,13 @@
                     icon: icone || 'https://via.placeholder.com/100/667eea/ffffff?text=❤️',
                     badge: 'https://via.placeholder.com/100/667eea/ffffff?text=❤️',
                     vibrate: [200, 100, 200],
-                    sound: 'default',
                     tag: 'lovechat-message',
                     renotify: true,
                     silent: false
                 };
 
-                // Para iOS que não suporta todas as opções
                 if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
                     delete options.vibrate;
-                    delete options.sound;
                 }
 
                 const notification = new Notification(titulo, options);
@@ -1569,7 +1641,6 @@
             }
         }
 
-        // Mostrar modal de notificações (primeira vez)
         function mostrarModalNotificacoes() {
             const jaVisto = localStorage.getItem('notificacoesModalVisto');
             if (!jaVisto) {
@@ -1597,7 +1668,6 @@
             }
         }
 
-        // Atualizar badge de notificações
         function atualizarBadgeNotificacoes() {
             const badge = document.getElementById('notificationBadge');
             if (notificacoesPendentes > 0) {
@@ -1636,7 +1706,6 @@
             recentes: []
         };
 
-        // Carregar emojis recentes
         function carregarEmojisRecentes() {
             const recentes = localStorage.getItem('emojisRecentes');
             if (recentes) {
@@ -1775,7 +1844,6 @@
             message.timestamp = new Date().toISOString();
             data.messages.push(message);
             
-            // Limitar a 100 mensagens
             if (data.messages.length > 100) {
                 data.messages = data.messages.slice(-100);
             }
@@ -1966,7 +2034,6 @@
             }
         }
 
-        // Upload de foto de perfil
         document.getElementById('profilePhotoInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2450,6 +2517,300 @@
         }
 
         // ========================================
+        // JOGO DOS DADOS DO AMOR
+        // ========================================
+
+        const dadosDoAmor = {
+            acoes: [
+                "Dê um beijo",
+                "Faça um carinho",
+                "Conte uma piada",
+                "Faça um elogio",
+                "Dê um abraço",
+                "Conte um segredo",
+                "Faça uma massagem",
+                "Cante uma música",
+                "Diga 'eu te amo'",
+                "Faça um cafuné",
+                "Mande um áudio fofo",
+                "Escreva uma poesia",
+                "Prepare uma surpresa",
+                "Dance comigo",
+                "Olhe nos meus olhos",
+                "Faça uma promessa",
+                "Lembre um momento especial",
+                "Desenhe algo para mim",
+                "Envie uma foto criativa",
+                "Fale seu sonho"
+            ],
+            
+            complementos: [
+                "na boca",
+                "na testa",
+                "na mão",
+                "no pescoço",
+                "no rosto",
+                "nos cabelos",
+                "nas costas",
+                "no ombro",
+                "bem demorado",
+                "com muito amor",
+                "de surpresa",
+                "com um sorriso",
+                "olhando nos olhos",
+                "cantando baixinho",
+                "com todo carinho",
+                "bem apertado",
+                "fazendo cócegas",
+                "sem parar",
+                "de repente",
+                "com ternura"
+            ],
+            
+            frasesEspeciais: [
+                "✨ ALMAS GÊMEAS! ✨",
+                "💕 FEITO UM PARA O OUTRO! 💕",
+                "💘 AMOR ETERNO! 💘",
+                "🌟 PERFEITOS JUNTOS! 🌟",
+                "💞 ALMA GÊMEA DETECTADA! 💞",
+                "🎯 DESTINADOS A FICAR JUNTOS! 🎯",
+                "💖 COMBINAÇÃO PERFEITA! 💖",
+                "🔮 O UNIVERSO APROVA! 🔮"
+            ]
+        };
+
+        let desafiosPersonalizados = [];
+        let historicoDesafios = [];
+
+        function carregarDesafiosPersonalizados() {
+            const salvos = localStorage.getItem('desafiosPersonalizados');
+            if (salvos) {
+                desafiosPersonalizados = JSON.parse(salvos);
+            }
+        }
+
+        function salvarDesafiosPersonalizados() {
+            localStorage.setItem('desafiosPersonalizados', JSON.stringify(desafiosPersonalizados));
+        }
+
+        function abrirJogoDados() {
+            carregarDesafiosPersonalizados();
+            document.getElementById('jogoDadosModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            document.getElementById('dado1').innerHTML = '❤️';
+            document.getElementById('dado2').innerHTML = '💕';
+            document.getElementById('desafioResultado').innerHTML = '🎲 Clique em "Rolar Dados" para começar!';
+            
+            atualizarHistoricoDesafios();
+        }
+
+        function fecharJogoDados() {
+            document.getElementById('jogoDadosModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function rolarDados() {
+            animarDados();
+            
+            setTimeout(() => {
+                const dado1 = Math.floor(Math.random() * dadosDoAmor.acoes.length);
+                const dado2 = Math.floor(Math.random() * dadosDoAmor.complementos.length);
+                
+                document.getElementById('dado1').innerHTML = getEmojiDado(dado1);
+                document.getElementById('dado2').innerHTML = getEmojiDado(dado2);
+                
+                let desafio;
+                let tipoDesafio = 'normal';
+                
+                if (dado1 === dado2) {
+                    desafio = dadosDoAmor.frasesEspeciais[Math.floor(Math.random() * dadosDoAmor.frasesEspeciais.length)];
+                    tipoDesafio = 'especial';
+                } else {
+                    desafio = `${dadosDoAmor.acoes[dado1]} ${dadosDoAmor.complementos[dado2]}`;
+                }
+                
+                const resultadoDiv = document.getElementById('desafioResultado');
+                resultadoDiv.innerHTML = desafio;
+                
+                if (tipoDesafio === 'especial') {
+                    resultadoDiv.style.background = 'linear-gradient(135deg, #ffd70030, #ffa50030)';
+                    resultadoDiv.style.fontSize = '28px';
+                } else {
+                    resultadoDiv.style.background = 'linear-gradient(135deg, #667eea20, #764ba220)';
+                    resultadoDiv.style.fontSize = '24px';
+                }
+                
+                const agora = new Date();
+                const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                historicoDesafios.unshift({
+                    hora: hora,
+                    desafio: desafio,
+                    tipo: tipoDesafio
+                });
+                
+                if (historicoDesafios.length > 10) {
+                    historicoDesafios.pop();
+                }
+                
+                atualizarHistoricoDesafios();
+                
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate([50, 50, 50]);
+                }
+                
+                if (confirm('Enviar este desafio para o chat?')) {
+                    enviarDesafioParaChat(desafio);
+                }
+                
+            }, 500);
+        }
+
+        function rolarDadosPersonalizado() {
+            const todosDesafios = [...dadosDoAmor.acoes];
+            
+            desafiosPersonalizados.forEach(d => {
+                todosDesafios.push(d.desafio);
+            });
+            
+            const dado1 = Math.floor(Math.random() * todosDesafios.length);
+            const dado2 = Math.floor(Math.random() * dadosDoAmor.complementos.length);
+            
+            animarDados();
+            
+            setTimeout(() => {
+                document.getElementById('dado1').innerHTML = getEmojiDadoCustom(dado1);
+                document.getElementById('dado2').innerHTML = getEmojiDado(dado2);
+                
+                let desafio;
+                if (dado1 < dadosDoAmor.acoes.length) {
+                    desafio = `${dadosDoAmor.acoes[dado1]} ${dadosDoAmor.complementos[dado2]}`;
+                } else {
+                    const personalizado = desafiosPersonalizados[dado1 - dadosDoAmor.acoes.length];
+                    desafio = `${personalizado.desafio} ${dadosDoAmor.complementos[dado2]}`;
+                }
+                
+                document.getElementById('desafioResultado').innerHTML = desafio;
+                
+                const agora = new Date();
+                const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                
+                historicoDesafios.unshift({
+                    hora: hora,
+                    desafio: desafio,
+                    tipo: 'personalizado'
+                });
+                
+                if (historicoDesafios.length > 10) {
+                    historicoDesafios.pop();
+                }
+                
+                atualizarHistoricoDesafios();
+                
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(50);
+                }
+            }, 500);
+        }
+
+        function animarDados() {
+            let contador = 0;
+            const interval = setInterval(() => {
+                document.getElementById('dado1').innerHTML = ['❤️', '💕', '💖', '💘'][Math.floor(Math.random() * 4)];
+                document.getElementById('dado2').innerHTML = ['💕', '❤️', '💘', '💖'][Math.floor(Math.random() * 4)];
+                contador++;
+                if (contador > 5) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+
+        function getEmojiDado(index) {
+            const emojis = ['❤️', '💕', '💖', '💘', '💗', '💓', '💞', '💝', '💟', '💜', '💙', '💚', '💛', '🧡', '🤍', '🤎', '🖤', '❣️', '💔', '❤️‍🔥'];
+            return emojis[index % emojis.length];
+        }
+
+        function getEmojiDadoCustom(index) {
+            if (index < dadosDoAmor.acoes.length) {
+                return getEmojiDado(index);
+            } else {
+                return '✨';
+            }
+        }
+
+        function atualizarHistoricoDesafios() {
+            const div = document.getElementById('historicoDesafios');
+            
+            if (historicoDesafios.length === 0) {
+                div.innerHTML = '<p style="text-align: center;">Nenhum desafio ainda</p>';
+                return;
+            }
+            
+            div.innerHTML = historicoDesafios.map(item => {
+                let cor = '#667eea';
+                if (item.tipo === 'especial') cor = '#ffd700';
+                if (item.tipo === 'personalizado') cor = '#4caf50';
+                
+                return `
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 5px; border-bottom: 1px dashed var(--message-received-border);">
+                        <span style="color: ${cor}; font-weight: bold;">${item.hora}</span>
+                        <span style="color: var(--text-primary);">${item.desafio}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function enviarDesafioParaChat(desafio) {
+            const message = {
+                userId: currentUser.id,
+                userName: currentUser.nome,
+                userPhoto: currentUser.foto,
+                type: 'text',
+                content: `🎲 Desafio do Amor: ${desafio}`
+            };
+            
+            await addMessage(message);
+            messages.push(message);
+            atualizarMensagens();
+            showToast('Desafio enviado!', 'success');
+        }
+
+        function adicionarDesafioPersonalizado() {
+            document.getElementById('novoDesafioModal').classList.add('active');
+        }
+
+        function fecharNovoDesafioModal() {
+            document.getElementById('novoDesafioModal').classList.remove('active');
+        }
+
+        function salvarDesafioPersonalizado() {
+            const tipo = document.getElementById('tipoDesafioPersonalizado').value;
+            const desafio = document.getElementById('desafioPersonalizado').value.trim();
+            const complemento = document.getElementById('complementoPersonalizado').value.trim();
+            
+            if (!desafio) {
+                alert('Digite um desafio!');
+                return;
+            }
+            
+            const novoDesafio = {
+                tipo: tipo,
+                desafio: desafio + (complemento ? ` ${complemento}` : ''),
+                data: new Date().toISOString()
+            };
+            
+            desafiosPersonalizados.push(novoDesafio);
+            salvarDesafiosPersonalizados();
+            
+            document.getElementById('desafioPersonalizado').value = '';
+            document.getElementById('complementoPersonalizado').value = '';
+            
+            fecharNovoDesafioModal();
+            alert('Desafio adicionado com sucesso!');
+        }
+
+        // ========================================
         // POLLING COM NOTIFICAÇÕES
         // ========================================
         
@@ -2459,17 +2820,13 @@
             pollingInterval = setInterval(async () => {
                 const novas = await getMessages();
                 
-                // Verificar se há novas mensagens
                 if (novas.length > messages.length) {
                     const novasMensagens = novas.slice(messages.length);
                     
-                    // Para cada nova mensagem que não é do usuário atual
                     novasMensagens.forEach(msg => {
                         if (msg.userId !== currentUser.id && msg.userId !== 'system') {
-                            // Incrementar contador de notificações
                             notificacoesPendentes++;
                             
-                            // Enviar notificação
                             if (notificacoesAtivadas) {
                                 let tipo = 'mensagem';
                                 let corpo = msg.type === 'text' ? msg.content : 
@@ -2491,7 +2848,6 @@
                     atualizarBadgeNotificacoes();
                 }
                 
-                // Atualizar dados do parceiro
                 const users = await getUsers();
                 const updatedPartner = users.find(u => u.id === partnerUser?.id);
                 if (updatedPartner) {
@@ -2511,7 +2867,6 @@
             }, 3000);
         }
 
-        // Zerar notificações ao focar na janela
         window.addEventListener('focus', () => {
             notificacoesPendentes = 0;
             atualizarBadgeNotificacoes();
@@ -2539,7 +2894,6 @@
             ajustarParaMobile();
             carregarEmojisRecentes();
             
-            // Verificar se notificações já foram ativadas
             const notificacoesSalvas = localStorage.getItem('notificacoesAtivadas');
             if (notificacoesSalvas === 'true') {
                 notificacoesAtivadas = true;
@@ -2551,7 +2905,6 @@
             await carregarMensagens();
             startPolling();
             
-            // Mostrar modal de notificações (se nunca viu)
             mostrarModalNotificacoes();
             
             document.getElementById('messageInput').addEventListener('keypress', function(e) {
